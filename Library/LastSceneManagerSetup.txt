@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/Snow - Prototype.unity
+- path: Assets/Scenes/Volcano - Prototype.unity
   isLoaded: 1
   isActive: 1

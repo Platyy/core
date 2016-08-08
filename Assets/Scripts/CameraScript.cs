@@ -3,42 +3,37 @@ using System.Collections;
 
 public class CameraScript : MonoBehaviour {
 	
-	// Public variables
 	//public GameObject target;
-	private Vector3 originalPos;
+	private Vector3 m_OriginalPos;
 
-	// Camera shake variables
-	public static CameraScript instance;
-	public float _amplitude = 0.1f;
+
+	public float m_Amplitude = 0.1f;
+
 	private Vector3 initialPos;
+
 	public bool isShaking = false;
-
-	// Use this for initialization
-	void Start () {
-
-		originalPos = transform.position;
-		instance = this;
-	
+    
+	void Start ()
+    {
+        m_OriginalPos = transform.position;
 	}
 	
-	// Update is called once per frame
-	void Update () {
-		transform.position = new Vector3 (originalPos.x, originalPos.y, originalPos.z);
-
-		initialPos = new Vector3 (originalPos.x, originalPos.y, originalPos.z);
-
+	void Update ()
+    {
 		if (isShaking) {
-			transform.localPosition = initialPos + Random.insideUnitSphere * _amplitude;
+			transform.localPosition = m_OriginalPos + Random.insideUnitSphere * m_Amplitude;
 		}
 	}
 
-	public void Shake (float amplitude, float duration) {
-		_amplitude = amplitude;
+	public void Shake (float _amplitude, float _duration)
+    {
+        m_Amplitude = _amplitude;
 		isShaking = true;
-		Invoke ("StopShaking", duration);
+		Invoke ("StopShaking", _duration);
 	}
 
-	public void StopShaking () {
+	public void StopShaking ()
+    {
 		isShaking = false;
 	}
 }

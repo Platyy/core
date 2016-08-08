@@ -51,12 +51,17 @@ public class PlayerController : MonoBehaviour {
 	public float exploRadius = 5f;
 	public float upwardsMod = 0.2f;
 
-	// Use this for initialization
-	void Start () {
+    private CameraScript m_CameraScript;
 
-//		boostLife = boostMax;
+	void Start ()
+    {
+        m_CameraScript = FindObjectOfType<CameraScript>();
+        if(m_CameraScript == null)
+        {
+            Debug.LogError("Camera Script not found!");
+        }
 
-		rb = GetComponent<Rigidbody> (); // Setting rb as player's rigidbody component
+        rb = GetComponent<Rigidbody> (); // Setting rb as player's rigidbody component
 
 		movementXName = "LSX" + playerNumber;
 		movementYName = "LSY" + playerNumber;
@@ -68,16 +73,16 @@ public class PlayerController : MonoBehaviour {
 		leftBumperName = "LB" + playerNumber;
 
 	}
-	// Calls update once per frame
-	void Update () {
+
+	void Update ()
+    {
 
 		timer += Time.deltaTime;
-
-
+        
 	}
 
-	// Physics update (fixed at 60fps)
-	void FixedUpdate () {
+	void FixedUpdate ()
+    {
 
 		Movement ();
 
@@ -85,7 +90,8 @@ public class PlayerController : MonoBehaviour {
 
 	}
 
-	void Movement () {
+	void Movement ()
+    {
 
 		movementInput = new Vector3 (Input.GetAxis (movementXName), 0, Input.GetAxis (movementYName));
 		rotationInput = new Vector3 (Input.GetAxis (rotationXName), 0, Input.GetAxis (rotationYName));
@@ -123,8 +129,8 @@ public class PlayerController : MonoBehaviour {
 
 	}
 
-	void Shooting () {
-
+	void Shooting ()
+    {
 		leftTrigger = Input.GetAxis (leftTriggerName);
 		rightTrigger = Input.GetAxis (rightTriggerName);
 
@@ -136,8 +142,8 @@ public class PlayerController : MonoBehaviour {
 		}
 	}
 
-	void OnCollisionEnter (Collision other) {
-
+	void OnCollisionEnter (Collision other)
+    {
 		if (other.gameObject.tag == "Bullet") {
 			Vector3 explosionPos = transform.position;
 			Collider[] cols = Physics.OverlapSphere (explosionPos, exploRadius);
@@ -147,7 +153,7 @@ public class PlayerController : MonoBehaviour {
 					colRb.AddExplosionForce (exploForce, explosionPos, exploRadius, upwardsMod, ForceMode.Impulse);
 				}
 			}
-			CameraScript.instance.Shake (1f, 0.2f);
+			m_CameraScript.Shake (1f, 0.2f);
 			Instantiate (exploPS, transform.position, transform.rotation);
 			Instantiate (exploAudio, transform.position, transform.rotation);
 			Destroy (gameObject);

@@ -3,20 +3,11 @@ using System.Collections;
 
 public class BulletScript : MonoBehaviour {
 
-	public ParticleSystem bulletPS;
+	public ParticleSystem m_BulletParticle;
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
-
-	void OnCollisionEnter (Collision other) {
-		Instantiate (bulletPS, transform.position, transform.rotation);
+	void OnCollisionEnter (Collision other)
+    {
+		Instantiate (m_BulletParticle, transform.position, transform.rotation);
 		Destroy (gameObject);
 	}
 }

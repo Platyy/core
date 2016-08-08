@@ -2,8 +2,7 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-public class SceneMan : MonoBehaviour {
-
+public class SceneStuff : MonoBehaviour {
 
 	void Update () {
 
