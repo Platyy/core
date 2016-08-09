@@ -139,6 +139,7 @@ public class PlayerController : MonoBehaviour {
 			shootAudio.Play ();
 			Rigidbody proj = Instantiate (projectile, bulletSpawn.position, projectile.transform.rotation) as Rigidbody;
 			proj.velocity = bulletSpawn.TransformDirection (new Vector3 (0, 0, projectileSpeed));
+            Destroy(proj.gameObject, 3);
 		}
 	}
 
