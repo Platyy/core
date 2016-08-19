@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/Asymmetrical Layout 1.unity
+- path: Assets/Scenes/Asymmetrical Layout 2.unity
   isLoaded: 1
   isActive: 1
