@@ -7,7 +7,11 @@ public class BulletScript : MonoBehaviour {
 
 	void OnCollisionEnter (Collision other)
     {
+<<<<<<< HEAD
 		Instantiate (m_BulletParticle, transform.position, transform.rotation);
+=======
+>>>>>>> + InControl
 		Destroy (gameObject);
+		Instantiate (bulletPS, transform.position, transform.rotation);
 	}
 }
