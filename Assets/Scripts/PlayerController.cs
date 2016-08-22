@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour {
     public GameObject m_Drone, m_Core, m_Shields, m_Bullet;
     public Transform m_BulletSpawn;
     public float m_BulletSpeed = 10f;
-
+    public bool m_CanShoot = true;
 
     // Public variables
     // Movement
@@ -132,7 +132,7 @@ public class PlayerController : MonoBehaviour {
         leftTrigger = Input.GetAxis(leftTriggerName);
         rightTrigger = Input.GetAxis(rightTriggerName);
 
-        if (rightTrigger > 0.1 && timer > fireDelay)
+        if (rightTrigger > 0.1 && timer > fireDelay && m_CanShoot)
         {
             timer = 0f;
             GameObject _bullet = (GameObject)Instantiate(m_Bullet, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z )), Quaternion.identity);
