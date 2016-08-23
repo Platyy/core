@@ -8,6 +8,7 @@
 [Ll]ibrary/metadata/
 sysinfo.txt
 *.stackdump
+*.meta
  
 # ===================================== #
 # Visual Studio / MonoDevelop generated #
