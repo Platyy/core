@@ -5,10 +5,8 @@
 [Oo]bj/
 [Bb]uild
 [Ll]ibrary/
-[Ll]ibrary/metadata/
 sysinfo.txt
 *.stackdump
-*.meta
  
 # ===================================== #
 # Visual Studio / MonoDevelop generated #
