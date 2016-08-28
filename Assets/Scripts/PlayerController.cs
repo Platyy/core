@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour {
     public Transform m_BulletSpawn;
     public float m_BulletSpeed = 10f;
     public bool m_CanShoot = true;
+    public int m_PlayerID = 0;
 
     // Public variables
     // Movement
@@ -50,9 +51,11 @@ public class PlayerController : MonoBehaviour {
 
     private CameraScript m_CameraScript;
 
+    private LMS m_LMS;
+
     void Start()
     {
-
+        m_LMS = FindObjectOfType<LMS>();
         rb = GetComponent<Rigidbody>(); // Setting rb as player's rigidbody component
 
         movementXName = "LSX" + playerNumber;
@@ -75,8 +78,12 @@ public class PlayerController : MonoBehaviour {
 
     void FixedUpdate()
     {
-        Movement();
-        Shooting();
+        if(m_LMS.m_RoundStarted)
+        {
+            Movement();
+            Shooting();
+
+        }
     }
 
     void Movement()
@@ -136,6 +143,7 @@ public class PlayerController : MonoBehaviour {
         {
             timer = 0f;
             GameObject _bullet = (GameObject)Instantiate(m_Bullet, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z )), Quaternion.identity);
+            _bullet.GetComponent<BulletScript>().m_ID = m_PlayerID;
             _bullet.GetComponent<Rigidbody>().AddForce(m_BulletSpawn.forward * m_BulletSpeed, ForceMode.Impulse);
             Destroy(_bullet, 3);
         }
