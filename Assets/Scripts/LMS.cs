@@ -2,6 +2,8 @@
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Collections.Generic;
+using System;
 
 public class LMS : MonoBehaviour {
 
@@ -9,6 +11,10 @@ public class LMS : MonoBehaviour {
     private int m_RoundsRemaining = 3;
     public float m_RoundTime = 60f;
     private float m_RemainingTime = 60f;
+
+
+    private Color[] m_PlayerColors = new Color[4] { Color.blue, Color.red, Color.magenta, Color.green };
+
 
     public int m_ScorePerKill = 3;
     public int m_ScorePerRoundWin = 1;
@@ -81,16 +87,13 @@ public class LMS : MonoBehaviour {
 
     void EndRound()
     {
-
-
         m_RoundStarted = false;
+        m_RoundsRemaining--;
         m_RemainingTime = m_RoundTime;
         if (m_RoundsRemaining > 0)
         {
-            
-            m_RoundsRemaining = m_RoundsRemaining - 1;
             ResetPlayers();
-
+            Debug.Log(m_RoundsRemaining);
         }
         else
         {
@@ -104,16 +107,13 @@ public class LMS : MonoBehaviour {
 
         for (int i = 0; i < m_Scores.transform.childCount; i++)
         {
-            m_Scores.transform.GetChild(i).GetComponent<Text>().text = CalculateScore(i).ToString();
+            m_Scores.transform.GetChild(i).GetComponent<Text>().text = "Player " + i.ToString() + ": "+ CalculateScore(i).ToString();
         }
-
-
-
+        
         if (Input.GetButtonDown("BackButton"))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
-
     }
 
     int CalculateScore(int _playerID)
@@ -140,7 +140,15 @@ public class LMS : MonoBehaviour {
         {
             GameObject _go = (GameObject)Instantiate(m_Player, m_Spawns[i].position, m_Spawns[i].rotation);
             m_PlayerList[i] = _go;
-            _go.GetComponent<PlayerController>().m_PlayerID = i;
+            var _pc = _go.GetComponent<PlayerController>();
+            _pc.m_PlayerID = i;
+
+            _pc.m_Renderer = _go.GetComponentsInChildren<Renderer>();
+            for (int j = 0; j < _pc.m_Renderer.Length; j++)
+            {
+                _pc.m_Renderer[j].material.shader = Shader.Find("Standard");
+                _pc.m_Renderer[j].material.SetColor("_EmissionColor", m_PlayerColors[i]);
+            }
             m_PlayersAlive[i] = 1;
         }
     }

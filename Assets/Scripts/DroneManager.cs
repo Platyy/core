@@ -5,6 +5,7 @@ public class DroneManager : MonoBehaviour {
     
     public PlayerController m_PlayerController;
 
+    public Transform m_Spawn;
     private Vector3 m_Forward, m_Left, m_Right;
     private RaycastHit m_HitInfo;
 
@@ -25,9 +26,9 @@ public class DroneManager : MonoBehaviour {
 
     void GetDirections()
     {
-        m_Forward = transform.forward;
-        m_Left = -transform.right;
-        m_Right = transform.right;
+        m_Forward = m_Spawn.forward;
+        m_Left = -m_Spawn.right;
+        m_Right = m_Spawn.right;
         Debug.DrawRay(transform.position, m_Forward, Color.blue);
         Debug.DrawRay(transform.position, m_Left, Color.green);
         Debug.DrawRay(transform.position, m_Right, Color.red);
@@ -35,9 +36,9 @@ public class DroneManager : MonoBehaviour {
 
     void CheckRays()
     {
-        Ray _forwardRay = new Ray(transform.position, m_Forward);
-        Ray _leftRay    = new Ray(transform.position, m_Left);
-        Ray _rightRay   = new Ray(transform.position, m_Right);
+        Ray _forwardRay = new Ray(m_Spawn.transform.position, m_Forward);
+        Ray _leftRay    = new Ray(m_Spawn.transform.position, m_Left);
+        Ray _rightRay   = new Ray(m_Spawn.transform.position, m_Right);
 
         if (Physics.Raycast(_forwardRay, out m_HitInfo, 4f))
         {

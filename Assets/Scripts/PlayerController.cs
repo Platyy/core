@@ -1,13 +1,17 @@
 ﻿using UnityEngine;
+using InControl;
 using System.Collections;
 
 public class PlayerController : MonoBehaviour {
 
     public GameObject m_Drone, m_Core, m_Shields, m_Bullet;
+    public Color m_PlayerColor;
     public Transform m_BulletSpawn;
     public float m_BulletSpeed = 10f;
     public bool m_CanShoot = true;
     public int m_PlayerID = 0;
+
+    public Renderer[] m_Renderer;
 
     // Public variables
     // Movement
@@ -28,8 +32,7 @@ public class PlayerController : MonoBehaviour {
 
     private float leftTrigger;
     private float rightTrigger;
-
-    public int playerNumber = 1;
+    
     private string movementXName;
     private string movementYName;
     private string rotationXName;
@@ -58,14 +61,14 @@ public class PlayerController : MonoBehaviour {
         m_LMS = FindObjectOfType<LMS>();
         rb = GetComponent<Rigidbody>(); // Setting rb as player's rigidbody component
 
-        movementXName = "LSX" + playerNumber;
-        movementYName = "LSY" + playerNumber;
-        rotationXName = "RSX" + playerNumber;
-        rotationYName = "RSY" + playerNumber;
-        rightTriggerName = "RT" + playerNumber;
-        leftTriggerName = "LT" + playerNumber;
-        rightBumperName = "RB" + playerNumber;
-        leftBumperName = "LB" + playerNumber;
+        movementXName = "LSX" + m_PlayerID;
+        movementYName = "LSY" + m_PlayerID;
+        rotationXName = "RSX" + m_PlayerID;
+        rotationYName = "RSY" + m_PlayerID;
+        rightTriggerName = "RT" + m_PlayerID;
+        leftTriggerName = "LT" + m_PlayerID;
+        rightBumperName = "RB" + m_PlayerID;
+        leftBumperName = "LB" + m_PlayerID;
 
     }
 
@@ -148,24 +151,4 @@ public class PlayerController : MonoBehaviour {
             Destroy(_bullet, 3);
         }
     }
-
-    //void OnCollisionEnter(Collision other)
-    //{
-    //    if (other.gameObject.tag == "Bullet")
-    //    {
-    //        Vector3 explosionPos = transform.position;
-    //        Collider[] cols = Physics.OverlapSphere(explosionPos, exploRadius);
-    //        foreach (Collider hit in cols)
-    //        {
-    //            Rigidbody colRb = hit.GetComponent<Rigidbody>();
-    //            if (colRb != null)
-    //            {
-    //                colRb.AddExplosionForce(exploForce, explosionPos, exploRadius, upwardsMod, ForceMode.Impulse);
-    //            }
-    //        }
-    //        //m_CameraScript.Shake(1f, 0.2f);
-    //        //Instantiate(exploPS, transform.position, transform.rotation);
-    //        Destroy(gameObject);
-    //    }
-    //}
 }
