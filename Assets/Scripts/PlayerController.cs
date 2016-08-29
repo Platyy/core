@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using InControl;
 using System.Collections;
+using System.Collections.Generic;
+
 
 public class PlayerController : MonoBehaviour {
 
@@ -12,6 +14,9 @@ public class PlayerController : MonoBehaviour {
     public int m_PlayerID = 0;
 
     public Renderer[] m_Renderer;
+
+
+
 
     // Public variables
     // Movement
@@ -56,8 +61,21 @@ public class PlayerController : MonoBehaviour {
 
     private LMS m_LMS;
 
-    private InputDevice m_Device;
+    public InputDevice m_Device;
     private InputManager m_InputManager;
+
+
+    public List<InputDevice> m_InputDevices;
+    public InputDevice m_P1, m_P2, m_P3, m_P4;
+
+    void Awake()
+    {
+
+        m_InputDevices.Add(m_P1);
+        m_InputDevices.Add(m_P2);
+        m_InputDevices.Add(m_P3);
+        m_InputDevices.Add(m_P4);
+    }
 
     void Start()
     {
@@ -142,7 +160,7 @@ public class PlayerController : MonoBehaviour {
     {
         rightTrigger = Input.GetAxis(rightTriggerName);
 
-        if (rightTrigger > 0.1f && timer > fireDelay && m_CanShoot)
+        if (m_Device.GetControl(InputControlType.RightTrigger).IsPressed && timer > fireDelay && m_CanShoot)
         {
             timer = 0f;
             GameObject _bullet = (GameObject)Instantiate(m_Bullet, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z )), Quaternion.identity);
@@ -151,4 +169,5 @@ public class PlayerController : MonoBehaviour {
             Destroy(_bullet, 3);
         }
     }
+
 }
