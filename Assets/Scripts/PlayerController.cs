@@ -56,6 +56,9 @@ public class PlayerController : MonoBehaviour {
 
     private LMS m_LMS;
 
+    private InputDevice m_Device;
+    private InputManager m_InputManager;
+
     void Start()
     {
         m_LMS = FindObjectOfType<LMS>();
@@ -74,9 +77,7 @@ public class PlayerController : MonoBehaviour {
 
     void Update()
     {
-
         timer += Time.deltaTime;
-
     }
 
     void FixedUpdate()
@@ -139,10 +140,9 @@ public class PlayerController : MonoBehaviour {
 
     void Shooting()
     {
-        leftTrigger = Input.GetAxis(leftTriggerName);
         rightTrigger = Input.GetAxis(rightTriggerName);
 
-        if (rightTrigger > 0.1 && timer > fireDelay && m_CanShoot)
+        if (rightTrigger > 0.1f && timer > fireDelay && m_CanShoot)
         {
             timer = 0f;
             GameObject _bullet = (GameObject)Instantiate(m_Bullet, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z )), Quaternion.identity);

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class BulletScript : MonoBehaviour {
 
-	public ParticleSystem m_BulletParticle;
+	//public ParticleSystem m_BulletParticle;
     public LMS m_LMS;
     public int m_ID = -1;
     public int m_HitID = 0;
@@ -11,6 +11,10 @@ public class BulletScript : MonoBehaviour {
     void Awake()
     {
         m_LMS = FindObjectOfType<LMS>();
+    }
+
+    void Start()
+    {
     }
 
 	void OnCollisionEnter (Collision other)
@@ -31,7 +35,6 @@ public class BulletScript : MonoBehaviour {
             m_LMS.m_PlayerKillsThisRound[m_ID]++;
             m_LMS.m_PlayerScores[m_ID] += m_LMS.m_ScorePerKill;
         }
-		Instantiate (m_BulletParticle, transform.position, transform.rotation);
 		Destroy (gameObject);
 	}
 }

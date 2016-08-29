@@ -12,6 +12,8 @@ public class LMS : MonoBehaviour {
     public float m_RoundTime = 60f;
     private float m_RemainingTime = 60f;
 
+    float m_Mins;
+    float m_Secs;
 
     private Color[] m_PlayerColors = new Color[4] { Color.blue, Color.red, Color.magenta, Color.green };
 
@@ -76,7 +78,9 @@ public class LMS : MonoBehaviour {
         if(m_RoundStarted)
         {
             m_RemainingTime -= Time.deltaTime;
-            m_TimeDisplay.text = Mathf.Floor(m_RemainingTime % 60).ToString();
+            m_Mins = Mathf.Floor(m_RemainingTime / 60f);
+            m_Secs = Mathf.Floor(m_RemainingTime % 60);
+            m_TimeDisplay.text = m_Mins.ToString() + ":" + m_Secs.ToString();
         }
 
         if(m_RemainingTime <= 0)
@@ -104,7 +108,7 @@ public class LMS : MonoBehaviour {
     void EndGame()
     {
         m_Scores.SetActive(true);
-
+        m_RoundsRemaining = 0;
         for (int i = 0; i < m_Scores.transform.childCount; i++)
         {
             m_Scores.transform.GetChild(i).GetComponent<Text>().text = "Player " + i.ToString() + ": "+ CalculateScore(i).ToString();
