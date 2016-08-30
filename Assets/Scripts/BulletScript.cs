@@ -5,12 +5,14 @@ public class BulletScript : MonoBehaviour {
 
 	//public ParticleSystem m_BulletParticle;
     public LMS m_LMS;
+    private PlayerControllerManager m_PlayerControllerManager;
     public int m_ID = -1;
     public int m_HitID = 0;
 
     void Awake()
     {
         m_LMS = FindObjectOfType<LMS>();
+        m_PlayerControllerManager = FindObjectOfType<PlayerControllerManager>();
     }
 
     void Start()

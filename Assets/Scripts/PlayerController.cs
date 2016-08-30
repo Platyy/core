@@ -94,7 +94,8 @@ public class PlayerController : MonoBehaviour {
         }
         else
         {
-            gameObject.SetActive(false);
+            m_Device = m_ControllerManager.GiveInput(gameObject);
+            m_HasControls = true;
         }
 
     }
@@ -165,7 +166,6 @@ public class PlayerController : MonoBehaviour {
 
     void Shooting()
     {
-
         if (m_Device.GetControl(InputControlType.RightTrigger).IsPressed && timer > fireDelay && m_CanShoot)
         {
             timer = 0f;
@@ -175,5 +175,4 @@ public class PlayerController : MonoBehaviour {
             Destroy(_bullet, 3);
         }
     }
-
 }

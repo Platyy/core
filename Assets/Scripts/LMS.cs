@@ -54,6 +54,7 @@ public class LMS : MonoBehaviour {
     private PlayerControllerManager m_ControllerManager;
     private int m_DevicesAssigned = -1;
 
+    private int m_CurrentDead = 0;
 
     public void Start()
     {
@@ -85,19 +86,19 @@ public class LMS : MonoBehaviour {
 
     public void ManagePlayers()
     {
-        int _dead = 0;
         for (int i = 0; i < m_DevicesAssigned; i++)
         {
             if(m_PlayersAlive[i] == 0)
             {
-                _dead++;
+                m_CurrentDead++;
             }
         }
-        if (_dead >= m_DevicesAssigned - 1)
+        if (m_CurrentDead >= m_DevicesAssigned - 1)
         {
-            EndRound();
+            //EndRound();
+            EndGame();
         }
-        else _dead = 0;
+        else m_CurrentDead = 0;
     }
 
     void ManageTime()
@@ -123,7 +124,8 @@ public class LMS : MonoBehaviour {
         m_RemainingTime = m_RoundTime;
         if (m_RoundsRemaining > 0)
         {
-            ResetPlayers();
+            //ResetPlayers();
+            EndGame();
             Debug.Log(m_RoundsRemaining);
         }
         else
@@ -134,6 +136,7 @@ public class LMS : MonoBehaviour {
 
     void EndGame()
     {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         m_Scores.SetActive(true);
         m_RoundsRemaining = 0;
         for (int i = 0; i < m_Scores.transform.childCount; i++)
@@ -165,7 +168,7 @@ public class LMS : MonoBehaviour {
 
     void ResetPlayers()
     {
-        for (int i = 0; i < m_PlayerList.Length; i++)
+        for (int i = 0; i < m_DevicesAssigned; i++)
         {
             if (m_PlayerList[i] != null)
             {
@@ -189,6 +192,7 @@ public class LMS : MonoBehaviour {
                 _pc.m_Renderer[j].material.SetColor("_EmissionColor", m_PlayerColors[i]);
             }
             m_PlayersAlive[i] = 1;
+            _go.SetActive(true);
             
         }
     }
