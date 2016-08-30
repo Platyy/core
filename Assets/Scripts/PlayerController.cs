@@ -61,20 +61,18 @@ public class PlayerController : MonoBehaviour {
 
     private LMS m_LMS;
 
+    private PlayerControllerManager m_ControllerManager;
+
+
     public InputDevice m_Device;
     private InputManager m_InputManager;
-
-
-    public List<InputDevice> m_InputDevices;
-    public InputDevice m_P1, m_P2, m_P3, m_P4;
+    
+    public bool m_HasControls = false;
 
     void Awake()
     {
-
-        m_InputDevices.Add(m_P1);
-        m_InputDevices.Add(m_P2);
-        m_InputDevices.Add(m_P3);
-        m_InputDevices.Add(m_P4);
+        m_ControllerManager = FindObjectOfType<PlayerControllerManager>();
+        m_Device = m_ControllerManager.GiveInput(gameObject);
     }
 
     void Start()
@@ -90,6 +88,14 @@ public class PlayerController : MonoBehaviour {
         leftTriggerName = "LT" + m_PlayerID;
         rightBumperName = "RB" + m_PlayerID;
         leftBumperName = "LB" + m_PlayerID;
+        if(m_Device != null)
+        {
+            m_HasControls = true;
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
 
     }
 
@@ -111,8 +117,9 @@ public class PlayerController : MonoBehaviour {
     void Movement()
     {
 
-        movementInput = new Vector3(Input.GetAxis(movementXName), 0, Input.GetAxis(movementYName));
-        rotationInput = new Vector3(Input.GetAxis(rotationXName), 0, Input.GetAxis(rotationYName));
+        movementInput = new Vector3(m_Device.GetControl(InputControlType.LeftStickX).RawValue, 0, m_Device.GetControl(InputControlType.LeftStickY).RawValue);
+        //rotationInput = new Vector3(Input.GetAxis(rotationXName), 0, Input.GetAxis(rotationYName));
+        rotationInput = new Vector3(m_Device.GetControl(InputControlType.RightStickX), 0, m_Device.GetControl(InputControlType.RightStickY));
 
         if (movementInput.magnitude > 1)
         {
@@ -132,13 +139,13 @@ public class PlayerController : MonoBehaviour {
             rb.AddForce(movementInput * moveSpeed);
         }
 
-        if (Input.GetButton(leftBumperName))
+        if (m_Device.GetControl(InputControlType.LeftBumper).IsPressed)
         {
             m_Core.transform.Rotate(0, -5, 0);
             m_Shields.transform.Rotate(0, -5, 0);
         }
 
-        if (Input.GetButton(rightBumperName))
+        if (m_Device.GetControl(InputControlType.RightBumper).IsPressed)
         {
             m_Core.transform.Rotate(0, 5, 0);
             m_Shields.transform.Rotate(0, 5, 0);
@@ -158,7 +165,6 @@ public class PlayerController : MonoBehaviour {
 
     void Shooting()
     {
-        rightTrigger = Input.GetAxis(rightTriggerName);
 
         if (m_Device.GetControl(InputControlType.RightTrigger).IsPressed && timer > fireDelay && m_CanShoot)
         {

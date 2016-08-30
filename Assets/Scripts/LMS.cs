@@ -38,40 +38,39 @@ public class LMS : MonoBehaviour {
 
     public int[] m_PlayerScores = new int[] { 0, 0, 0, 0 };
 
-    public int[] m_PlayersAlive = new int[] { 0, 0, 0, 0 };
+    public int[] m_PlayersAlive;
     public int[] m_PlayerKillsThisRound = new int[] { 0, 0, 0, 0 };
     public GameObject m_Player;
     public Transform[] m_Spawns = new Transform[4];
 
-    private GameObject[] m_PlayerList = new GameObject[4];
+    private GameObject[] m_PlayerList;
 
-    
-    public List<InputDevice> m_InputDevices;
+
+    public InputDevice[] m_InputDevices = new InputDevice[4];
     public List<GameObject> m_InstantiatedPlayers;
-    public InputDevice m_P1, m_P2, m_P3, m_P4;
 
     private bool m_P1Ready = false, m_P2Ready = false, m_P3Ready = false, m_P4Ready = false;
 
-    void Awake()
-    {
-        m_InputDevices.Add(m_P1); 
-        m_InputDevices.Add(m_P2);
-        m_InputDevices.Add(m_P3);
-        m_InputDevices.Add(m_P4);
-        Setup();
-    }
+    private PlayerControllerManager m_ControllerManager;
+    private int m_DevicesAssigned = -1;
+
 
     public void Start()
     {
+        m_ControllerManager = FindObjectOfType<PlayerControllerManager>();
+        m_DevicesAssigned = m_ControllerManager.m_DevicesAssigned + 1;
+
+        m_PlayersAlive = new int[m_DevicesAssigned];
+        m_PlayerList = new GameObject[m_DevicesAssigned];
+
         m_Scores.SetActive(false);
-        ResetPlayers();
         m_RemainingTime = m_RoundTime;
         for (int i = 0; i < m_PlayersAlive.Length; i++)
         {
             m_PlayersAlive[i] = 1;
         }
 
-        GiveInput();
+        ResetPlayers();
     }
 
     public void Update()
@@ -87,14 +86,14 @@ public class LMS : MonoBehaviour {
     public void ManagePlayers()
     {
         int _dead = 0;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < m_DevicesAssigned; i++)
         {
             if(m_PlayersAlive[i] == 0)
             {
                 _dead++;
             }
         }
-        if (_dead >= 3)
+        if (_dead >= m_DevicesAssigned - 1)
         {
             EndRound();
         }
@@ -139,7 +138,14 @@ public class LMS : MonoBehaviour {
         m_RoundsRemaining = 0;
         for (int i = 0; i < m_Scores.transform.childCount; i++)
         {
-            m_Scores.transform.GetChild(i).GetComponent<Text>().text = "Player " + i.ToString() + ": "+ CalculateScore(i).ToString();
+            if(i <= m_DevicesAssigned)
+            {
+                m_Scores.transform.GetChild(i).GetComponent<Text>().text = "Player " + i.ToString() + ": "+ CalculateScore(i).ToString();
+            }
+            else
+            {
+                m_Scores.transform.GetChild(i).gameObject.SetActive(false);
+            }
         }
         
         if (Input.GetButtonDown("BackButton"))
@@ -168,6 +174,27 @@ public class LMS : MonoBehaviour {
             }
         }
 
+        for (int i = 0; i < m_DevicesAssigned; i++)
+        {
+            GameObject _go = (GameObject)Instantiate(m_Player, m_Spawns[i].position, m_Spawns[i].rotation);
+            m_InstantiatedPlayers.Add(_go);
+            m_PlayerList[i] = _go;
+            var _pc = _go.GetComponent<PlayerController>();
+            _pc.m_PlayerID = i;
+
+            _pc.m_Renderer = _go.GetComponentsInChildren<Renderer>();
+            for (int j = 0; j < _pc.m_Renderer.Length; j++)
+            {
+                _pc.m_Renderer[j].material.shader = Shader.Find("Standard");
+                _pc.m_Renderer[j].material.SetColor("_EmissionColor", m_PlayerColors[i]);
+            }
+            m_PlayersAlive[i] = 1;
+            
+        }
+    }
+
+    void SpawnPlayers()
+    {
         for (int i = 0; i < 4; i++)
         {
             GameObject _go = (GameObject)Instantiate(m_Player, m_Spawns[i].position, m_Spawns[i].rotation);
@@ -186,63 +213,5 @@ public class LMS : MonoBehaviour {
 
         }
     }
-
-    void GiveInput()
-    {
-        for (int i = 0; i < m_InputDevices.Count; i++)
-        {
-            if(m_InputDevices[i] != null)
-            {
-                var _pc = m_InstantiatedPlayers[i].GetComponent<PlayerController>();
-                _pc.m_Device = m_InputDevices[i];
-            }
-        }
-    }
-
-    void Setup()
-    {
-        for (int i = 0; i < InputManager.Devices.Count; i++)
-        {
-            if(InputManager.Devices[i] != null)
-                AddNewPlayerInput(InputManager.Devices[i]);
-        }
-    }
-
-    public bool AddNewPlayerInput(InputDevice newDevice)
-    {
-        // Check if already exists
-        if (m_InputDevices[0] != newDevice &&
-            m_InputDevices[1] != newDevice &&
-            m_InputDevices[2] != newDevice &&
-            m_InputDevices[3] != newDevice)
-        {
-            if (m_InputDevices[0] == null)
-            {
-                m_InputDevices[0] = newDevice;
-                return true;
-            }
-            else if (m_InputDevices[1] == null)
-            {
-                m_InputDevices[1] = newDevice;
-                return true;
-            }
-            else if (m_InputDevices[2] == null)
-            {
-                m_InputDevices[2] = newDevice;
-                return true;
-            }
-            else if (m_InputDevices[3] == null)
-            {
-                m_InputDevices[3] = newDevice;
-                return true;
-            }
-        }
-        else
-        {
-            Debug.Log("Failed to add new device. Device already exists.");
-            return false;
-        }
-
-        return false;
-    }
+    
 }
