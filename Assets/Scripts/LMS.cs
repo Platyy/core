@@ -25,7 +25,7 @@ public class LMS : MonoBehaviour {
     float m_Mins;
     float m_Secs;
 
-    private Color[] m_PlayerColors = new Color[4] { Color.blue, Color.red, Color.magenta, Color.green };
+    public Color[] m_PlayerColors = new Color[4] { Color.blue, Color.red, Color.magenta, Color.green };
 
 
     public int m_ScorePerKill = 3;

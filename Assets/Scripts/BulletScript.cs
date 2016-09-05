@@ -8,15 +8,35 @@ public class BulletScript : MonoBehaviour {
     private PlayerControllerManager m_PlayerControllerManager;
     public int m_ID = -1;
     public int m_HitID = 0;
+    private MeshRenderer m_Renderer;
+    private Material[] m_Materials;
+    private TrailRenderer m_Trail;
 
     void Awake()
     {
         m_LMS = FindObjectOfType<LMS>();
         m_PlayerControllerManager = FindObjectOfType<PlayerControllerManager>();
+
     }
 
     void Start()
     {
+
+
+        m_Materials = gameObject.GetComponent<MeshRenderer>().materials;
+        for (int i = 0; i < m_Materials.Length; i++)
+        {
+            m_Materials[i].SetColor("_Color", m_LMS.m_PlayerColors[1]);
+        }
+
+        gameObject.GetComponent<MeshRenderer>().materials = m_Materials;
+
+        m_Materials = gameObject.GetComponent<TrailRenderer>().materials;
+        for (int i = 0; i < m_Materials.Length; i++)
+        {
+            m_Materials[i].SetColor("_Color", m_LMS.m_PlayerColors[1]);
+        }
+        gameObject.GetComponent<TrailRenderer>().materials = m_Materials;
     }
 
 	void OnCollisionEnter (Collision other)

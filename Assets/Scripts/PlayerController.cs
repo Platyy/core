@@ -257,9 +257,13 @@ public class PlayerController : MonoBehaviour {
         Ray _ray = new Ray(m_BulletSpawn.position, m_BulletSpawn.forward);
         RaycastHit _hit;
         m_LineRenderer.SetPosition(0, _ray.origin);
-        if (Physics.Raycast(_ray, out _hit, 100f))
+        if (Physics.Raycast(_ray, out _hit, 1000f))
         {
             m_LineRenderer.SetPosition(1, _hit.point);
+        }
+        else
+        {
+            m_LineRenderer.SetPosition(1, _ray.direction * 10f);    
         }
         Debug.DrawLine(_ray.origin, _hit.point, Color.red);
     }
