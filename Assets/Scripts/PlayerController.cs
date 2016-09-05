@@ -68,6 +68,11 @@ public class PlayerController : MonoBehaviour {
     private InputManager m_InputManager;
     
     public bool m_HasControls = false;
+    private float m_Value = 360 / 8;
+
+    private LineRenderer m_LineRenderer;
+
+    public Material m_LineMaterial;
 
     void Awake()
     {
@@ -79,6 +84,13 @@ public class PlayerController : MonoBehaviour {
     {
         m_LMS = FindObjectOfType<LMS>();
         rb = GetComponent<Rigidbody>(); // Setting rb as player's rigidbody component
+
+        m_LineRenderer = gameObject.AddComponent<LineRenderer>();
+        m_LineRenderer.material = m_LineMaterial;
+        
+        m_LineRenderer.SetWidth(0.2f, 0.2f);
+        m_LineRenderer.SetVertexCount(2);
+        m_LineRenderer.useWorldSpace = true;
 
         movementXName = "LSX" + m_PlayerID;
         movementYName = "LSY" + m_PlayerID;
@@ -97,12 +109,14 @@ public class PlayerController : MonoBehaviour {
             m_Device = m_ControllerManager.GiveInput(gameObject);
             m_HasControls = true;
         }
-
+        m_LineRenderer.SetColors(m_PlayerColor, m_PlayerColor);
     }
 
     void Update()
     {
         timer += Time.deltaTime;
+        HandleLaser();
+
     }
 
     void FixedUpdate()
@@ -156,12 +170,10 @@ public class PlayerController : MonoBehaviour {
         { 
             //Checks if player is using right stick
         }
-        else if(rotationInput.magnitude > deadzone)
-        {
-            turretRotation = m_Drone.transform.rotation.eulerAngles;
-            m_Drone.transform.rotation = Quaternion.LookRotation(rotationInput);
-            m_Drone.transform.rotation = Quaternion.Lerp(Quaternion.Euler(turretRotation), m_Drone.transform.rotation, droneSpeed);
-        }
+
+        Rotation();
+
+
     }
 
     void Shooting()
@@ -174,5 +186,81 @@ public class PlayerController : MonoBehaviour {
             _bullet.GetComponent<Rigidbody>().AddForce(m_BulletSpawn.forward * m_BulletSpeed, ForceMode.Impulse);
             Destroy(_bullet, 3);
         }
+    }
+
+    void Rotation()
+    {
+        // Up = Between 337.5 & 22.5
+        // Up right = Between 22.5 & 67.5
+        // Right between 67.5 && 112.5
+        // Right down between 112.5 && 157.5
+        // Down between 157.5 & 202.5
+        // Down left between 202.5 & 247.5
+        // left between 247.5 & 292.5
+        // Left up between 292.5 & 337.5
+        if (rotationInput.magnitude > deadzone)
+        {
+            float _angle = m_Device.RightStick.Angle;
+            if (_angle > 22.5 && _angle < 67.5) // Right Up
+            {
+                turretRotation.y = 45;
+                // 45 
+            }
+            else if(_angle > 67.5 && _angle < 112.5) // Right
+            {
+                turretRotation.y = 90;
+                // 90
+            }
+            else if(_angle > 112.5 && _angle < 157.5) // Right Down
+            {
+                turretRotation.y = 135;
+                // 135
+            }
+            else if(_angle > 157.5 && _angle < 202.5) // Down
+            {
+                turretRotation.y = 180;
+                // 180
+            }
+            else if(_angle > 202.5 && _angle < 247.5) // Left Down
+            {
+                turretRotation.y = 225;
+                // 225
+            }
+            else if(_angle > 247.5 && _angle < 292.5) // Left
+            {
+                turretRotation.y = 270;
+                // 270
+            }
+            else if(_angle > 292.5 && _angle < 337.5) // Left Up
+            {
+                turretRotation.y = 315;
+                // 315
+            }
+            else
+            {
+                turretRotation.y = 0;
+                // 0
+            }
+
+
+
+
+
+            //m_Drone.transform.rotation = Quaternion.LookRotation(rotationInput);
+            m_Drone.transform.rotation = Quaternion.Lerp(Quaternion.Euler(turretRotation), m_Drone.transform.rotation, droneSpeed);
+        }
+
+    }
+
+    void HandleLaser()
+    {
+        Ray _ray = new Ray(m_BulletSpawn.position, m_BulletSpawn.forward);
+        RaycastHit _hit;
+        m_LineRenderer.SetPosition(0, _ray.origin);
+        if (Physics.Raycast(_ray, out _hit, 100f))
+        {
+            m_LineRenderer.SetPosition(1, _hit.point);
+        }
+        Debug.DrawLine(_ray.origin, _hit.point, Color.red);
     }
 }

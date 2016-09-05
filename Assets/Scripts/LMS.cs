@@ -190,6 +190,7 @@ public class LMS : MonoBehaviour {
             {
                 _pc.m_Renderer[j].material.shader = Shader.Find("Standard");
                 _pc.m_Renderer[j].material.SetColor("_EmissionColor", m_PlayerColors[i]);
+                _pc.m_PlayerColor = m_PlayerColors[i];
             }
             m_PlayersAlive[i] = 1;
             _go.SetActive(true);
