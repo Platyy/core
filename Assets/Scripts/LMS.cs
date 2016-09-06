@@ -45,16 +45,21 @@ public class LMS : MonoBehaviour {
 
     private GameObject[] m_PlayerList;
 
+    private List<InputDevice> m_UsedDevices;
 
     public InputDevice[] m_InputDevices = new InputDevice[4];
     public List<GameObject> m_InstantiatedPlayers;
-
+    
     private bool m_P1Ready = false, m_P2Ready = false, m_P3Ready = false, m_P4Ready = false;
 
     private PlayerControllerManager m_ControllerManager;
     private int m_DevicesAssigned = -1;
 
     private int m_CurrentDead = 0;
+
+    private bool m_NewGame = true;
+
+    public PlayerControllerManager m_PCM;
 
     public void Start()
     {
@@ -71,23 +76,54 @@ public class LMS : MonoBehaviour {
             m_PlayersAlive[i] = 1;
         }
 
-        ResetPlayers();
+        Spawn();
     }
+
+    public void GetControllers()
+    {
+        PlayerController[] _controller = FindObjectsOfType<PlayerController>();
+        for (int i = 0; i < _controller.Length; i++)
+        {
+            m_InputDevices[i] = _controller[i].m_Device;
+        }
+    }
+
 
     public void Update()
     {
+        if (Input.GetButtonDown("StartButton") && m_NewGame)
+        {
+            m_RoundStarted = true;
+            //for (int i = 0; i < m_DevicesAssigned; i++)
+            //{
+            //    if(m_UsedDevices[i] == null)
+            //    {
+            //        m_UsedDevices[i] = m_PlayerList[i].GetComponent<PlayerController>().m_Device;
+            //    }
+            //}
+            m_NewGame = false;
+            GetControllers();
+        }
+
         if (Input.GetButtonDown("StartButton"))
         {
             m_RoundStarted = true;
         }
-
         ManageTime();
+    }
+
+    IEnumerator DeathVibration(InputDevice _device)
+    {
+        _device.Vibrate(1f);
+        yield return new WaitForSeconds(0.75f);
+        _device.StopVibration();
     }
 
     public void ManagePlayers()
     {
         for (int i = 0; i < m_DevicesAssigned; i++)
         {
+            StartCoroutine(DeathVibration(m_InputDevices[i]));
             if(m_PlayersAlive[i] == 0)
             {
                 m_CurrentDead++;
@@ -109,6 +145,7 @@ public class LMS : MonoBehaviour {
             m_Mins = Mathf.Floor(m_RemainingTime / 60f);
             m_Secs = Mathf.Floor(m_RemainingTime % 60);
             m_TimeDisplay.text = m_Mins.ToString() + ":" + m_Secs.ToString();
+            
         }
 
         if(m_RemainingTime <= 0)
@@ -124,7 +161,7 @@ public class LMS : MonoBehaviour {
         m_RemainingTime = m_RoundTime;
         if (m_RoundsRemaining > 0)
         {
-            //ResetPlayers();
+            ResetPlayers();
             EndGame();
             Debug.Log(m_RoundsRemaining);
         }
@@ -136,7 +173,7 @@ public class LMS : MonoBehaviour {
 
     void EndGame()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         m_Scores.SetActive(true);
         m_RoundsRemaining = 0;
         for (int i = 0; i < m_Scores.transform.childCount; i++)
@@ -180,6 +217,30 @@ public class LMS : MonoBehaviour {
         for (int i = 0; i < m_DevicesAssigned; i++)
         {
             GameObject _go = (GameObject)Instantiate(m_Player, m_Spawns[i].position, m_Spawns[i].rotation);
+            var _pc = _go.GetComponent<PlayerController>();
+            m_InstantiatedPlayers.Add(_go);
+            m_PlayerList[i] = _go;
+            _pc.m_PlayerID = i;
+
+            _pc.m_Renderer = _go.GetComponentsInChildren<Renderer>();
+            for (int j = 0; j < _pc.m_Renderer.Length; j++)
+            {
+                _pc.m_Renderer[j].material.shader = Shader.Find("Standard");
+                _pc.m_Renderer[j].material.SetColor("_EmissionColor", m_PlayerColors[i]);
+                _pc.m_PlayerColor = m_PlayerColors[i];
+            }
+            m_PlayersAlive[i] = 1;
+            _go.SetActive(true);
+            _pc.m_Device = m_UsedDevices[i];
+            
+        }
+    }
+
+    public void Spawn()
+    {
+        for (int i = 0; i < m_DevicesAssigned; i++)
+        {
+            GameObject _go = (GameObject)Instantiate(m_Player, m_Spawns[i].position, m_Spawns[i].rotation);
             m_InstantiatedPlayers.Add(_go);
             m_PlayerList[i] = _go;
             var _pc = _go.GetComponent<PlayerController>();
@@ -193,30 +254,6 @@ public class LMS : MonoBehaviour {
                 _pc.m_PlayerColor = m_PlayerColors[i];
             }
             m_PlayersAlive[i] = 1;
-            _go.SetActive(true);
-            
         }
     }
-
-    void SpawnPlayers()
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            GameObject _go = (GameObject)Instantiate(m_Player, m_Spawns[i].position, m_Spawns[i].rotation);
-            m_InstantiatedPlayers.Add(_go);
-            m_PlayerList[i] = _go;
-            var _pc = _go.GetComponent<PlayerController>();
-            _pc.m_PlayerID = i;
-
-            _pc.m_Renderer = _go.GetComponentsInChildren<Renderer>();
-            for (int j = 0; j < _pc.m_Renderer.Length; j++)
-            {
-                _pc.m_Renderer[j].material.shader = Shader.Find("Standard");
-                _pc.m_Renderer[j].material.SetColor("_EmissionColor", m_PlayerColors[i]);
-            }
-            m_PlayersAlive[i] = 1;
-
-        }
-    }
-    
 }
