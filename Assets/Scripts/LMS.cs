@@ -6,15 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-[Serializable]
-public struct InputDevices
-{
-    public InputDevice m_Player1;
-    public InputDevice m_Player2;
-    public InputDevice m_Player3;
-    public InputDevice m_Player4;
-}
-
 public class LMS : MonoBehaviour {
 
     public int m_Rounds = 3;
@@ -25,8 +16,9 @@ public class LMS : MonoBehaviour {
     float m_Mins;
     float m_Secs;
 
-    public Color[] m_PlayerColors = new Color[4] { Color.blue, Color.red, Color.magenta, Color.green };
+    public Color[] m_PlayerColors = new Color[4] { Color.cyan, new Color(1.0f, 0.5f, 0), Color.magenta, Color.green };
 
+    private InputDevice[] m_InputDevicesUsed = new InputDevice[4];
 
     public int m_ScorePerKill = 3;
     public int m_ScorePerRoundWin = 1;
@@ -66,6 +58,8 @@ public class LMS : MonoBehaviour {
         m_ControllerManager = FindObjectOfType<PlayerControllerManager>();
         m_DevicesAssigned = m_ControllerManager.m_DevicesAssigned + 1;
 
+        m_InputDevicesUsed = m_ControllerManager.m_InputDevices;
+
         m_PlayersAlive = new int[m_DevicesAssigned];
         m_PlayerList = new GameObject[m_DevicesAssigned];
 
@@ -78,7 +72,23 @@ public class LMS : MonoBehaviour {
 
         Spawn();
     }
+    public void Update()
+    {
+        if (Input.GetButtonDown("StartButton") && m_NewGame)
+        {
+            m_RoundStarted = true;
 
+            m_NewGame = false;
+            GetControllers();
+        }
+
+        if (Input.GetButtonDown("StartButton"))
+        {
+            m_RoundStarted = true;
+            GetControllers();
+        }
+        ManageTime();
+    }
     public void GetControllers()
     {
         PlayerController[] _controller = FindObjectsOfType<PlayerController>();
@@ -87,31 +97,6 @@ public class LMS : MonoBehaviour {
             m_InputDevices[i] = _controller[i].m_Device;
         }
     }
-
-
-    public void Update()
-    {
-        if (Input.GetButtonDown("StartButton") && m_NewGame)
-        {
-            m_RoundStarted = true;
-            //for (int i = 0; i < m_DevicesAssigned; i++)
-            //{
-            //    if(m_UsedDevices[i] == null)
-            //    {
-            //        m_UsedDevices[i] = m_PlayerList[i].GetComponent<PlayerController>().m_Device;
-            //    }
-            //}
-            m_NewGame = false;
-            GetControllers();
-        }
-
-        if (Input.GetButtonDown("StartButton"))
-        {
-            m_RoundStarted = true;
-        }
-        ManageTime();
-    }
-
     IEnumerator DeathVibration(InputDevice _device)
     {
         _device.Vibrate(1f);
@@ -131,8 +116,8 @@ public class LMS : MonoBehaviour {
         }
         if (m_CurrentDead >= m_DevicesAssigned - 1)
         {
-            //EndRound();
-            EndGame();
+            EndRound();
+            //EndGame();
         }
         else m_CurrentDead = 0;
     }
@@ -162,7 +147,7 @@ public class LMS : MonoBehaviour {
         if (m_RoundsRemaining > 0)
         {
             ResetPlayers();
-            EndGame();
+            //EndGame();
             Debug.Log(m_RoundsRemaining);
         }
         else
@@ -173,7 +158,6 @@ public class LMS : MonoBehaviour {
 
     void EndGame()
     {
-        //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         m_Scores.SetActive(true);
         m_RoundsRemaining = 0;
         for (int i = 0; i < m_Scores.transform.childCount; i++)
@@ -190,7 +174,7 @@ public class LMS : MonoBehaviour {
         
         if (Input.GetButtonDown("BackButton"))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
         }
     }
 
@@ -218,9 +202,12 @@ public class LMS : MonoBehaviour {
         {
             GameObject _go = (GameObject)Instantiate(m_Player, m_Spawns[i].position, m_Spawns[i].rotation);
             var _pc = _go.GetComponent<PlayerController>();
+            
             m_InstantiatedPlayers.Add(_go);
             m_PlayerList[i] = _go;
             _pc.m_PlayerID = i;
+
+            _pc.m_Device = m_InputDevicesUsed[i];
 
             _pc.m_Renderer = _go.GetComponentsInChildren<Renderer>();
             for (int j = 0; j < _pc.m_Renderer.Length; j++)
@@ -231,8 +218,6 @@ public class LMS : MonoBehaviour {
             }
             m_PlayersAlive[i] = 1;
             _go.SetActive(true);
-            _pc.m_Device = m_UsedDevices[i];
-            
         }
     }
 

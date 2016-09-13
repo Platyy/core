@@ -8,7 +8,7 @@ public class PlayerControllerManager : MonoBehaviour {
 
     private InputDevice m_P1, m_P2, m_P3, m_P4;
     
-    public int m_DevicesAssigned = -1;
+    public int m_DevicesAssigned = 0;
 
     void Awake()
     {
@@ -27,6 +27,7 @@ public class PlayerControllerManager : MonoBehaviour {
             if (InputManager.Devices[i].IsAttached) // Get all connected devices and add them to the list.
                 AddDeviceToArray(InputManager.Devices[i]);
         }
+
     }
 
     public bool AddDeviceToArray(InputDevice _newDevice)

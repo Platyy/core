@@ -60,6 +60,7 @@ public class PlayerController : MonoBehaviour {
 
     private PlayerControllerManager m_ControllerManager;
     
+    
     public InputDevice m_Device;
     private InputManager m_InputManager;
     
@@ -129,6 +130,11 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    public void ResetController()
+    {
+
+    }
+
     void Movement()
     {
         movementInput = new Vector3(m_Device.GetControl(InputControlType.LeftStickX).RawValue, 0, m_Device.GetControl(InputControlType.LeftStickY).RawValue);
@@ -154,13 +160,11 @@ public class PlayerController : MonoBehaviour {
 
         if (m_Device.GetControl(InputControlType.LeftBumper).IsPressed)
         {
-            m_Core.transform.Rotate(0, -5, 0);
             m_Shields.transform.Rotate(0, -5, 0);
         }
 
         if (m_Device.GetControl(InputControlType.RightBumper).IsPressed)
         {
-            m_Core.transform.Rotate(0, 5, 0);
             m_Shields.transform.Rotate(0, 5, 0);
         }
         Rotation();
