@@ -130,11 +130,6 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    public void ResetController()
-    {
-
-    }
-
     void Movement()
     {
         movementInput = new Vector3(m_Device.GetControl(InputControlType.LeftStickX).RawValue, 0, m_Device.GetControl(InputControlType.LeftStickY).RawValue);
@@ -175,9 +170,10 @@ public class PlayerController : MonoBehaviour {
         if (m_Device.GetControl(InputControlType.RightTrigger).IsPressed && timer > fireDelay && m_CanShoot)
         {
             timer = 0f;
-            GameObject _bullet = (GameObject)Instantiate(m_Bullet, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z )), Quaternion.identity);
+            GameObject _bullet = (GameObject)Instantiate(m_Bullet, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z )), m_Drone.transform.rotation);
             _bullet.GetComponent<BulletScript>().m_ID = m_PlayerID;
             _bullet.GetComponent<Rigidbody>().AddForce(m_BulletSpawn.forward * m_BulletSpeed, ForceMode.Impulse);
+            m_CameraScript.Shake(0.15f, 0.1f);
             Destroy(_bullet, 3);
         }
     }

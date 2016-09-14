@@ -3,6 +3,9 @@ using System.Collections;
 
 public class BulletScript : MonoBehaviour {
 
+    Hashtable m_FirstHash;
+    Hashtable m_SecondHash;
+
 	//public ParticleSystem m_BulletParticle;
     public LMS m_LMS;
     private PlayerControllerManager m_PlayerControllerManager;
@@ -15,6 +18,25 @@ public class BulletScript : MonoBehaviour {
 
     void Awake()
     {
+        m_FirstHash = new Hashtable();
+        m_SecondHash = new Hashtable();
+        
+        m_FirstHash.Add("x", 1.5f);
+        m_FirstHash.Add("y", 1.5f);
+        m_FirstHash.Add("z", 7.5f);
+        m_FirstHash.Add("time", 0.25f);
+        m_FirstHash.Add("looptype", iTween.LoopType.pingPong);
+        m_FirstHash.Add("easetype", iTween.EaseType.easeInQuint);
+
+        m_SecondHash.Add("x", 0.75f);
+        m_SecondHash.Add("y", 0.75f);
+        m_SecondHash.Add("z", 0.75f);
+        m_SecondHash.Add("delay", 0.25f);
+        m_SecondHash.Add("time", 0.75f);
+        m_SecondHash.Add("looptype", iTween.LoopType.pingPong);
+        m_SecondHash.Add("easetype", iTween.EaseType.easeOutQuint);
+
+
         m_LMS = FindObjectOfType<LMS>();
         m_PlayerControllerManager = FindObjectOfType<PlayerControllerManager>();
 
@@ -39,6 +61,9 @@ public class BulletScript : MonoBehaviour {
             m_Materials[i].SetColor("_Color", m_LMS.m_PlayerColors[m_ID]);
         }
         gameObject.GetComponent<TrailRenderer>().materials = m_Materials;
+
+        iTween.ScaleTo(gameObject, m_FirstHash);
+        iTween.ScaleTo(gameObject, m_SecondHash);
     }
 
 	void OnCollisionEnter (Collision other)
