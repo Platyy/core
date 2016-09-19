@@ -33,6 +33,9 @@ public class LMS : MonoBehaviour {
     public int[] m_PlayersAlive;
     public int[] m_PlayerKillsThisRound = new int[] { 0, 0, 0, 0 };
     public GameObject m_Player;
+
+    public GameObject m_QuitCanvas;
+
     public Transform[] m_Spawns = new Transform[4];
 
     private GameObject[] m_PlayerList;
@@ -45,18 +48,26 @@ public class LMS : MonoBehaviour {
     private bool m_P1Ready = false, m_P2Ready = false, m_P3Ready = false, m_P4Ready = false;
 
     private PlayerControllerManager m_ControllerManager;
+    private GameObject m_EventSystem;
     private int m_DevicesAssigned = -1;
 
     private int m_CurrentDead = 0;
 
     private bool m_NewGame = true;
 
-    public PlayerControllerManager m_PCM;
+    private enum SelectedButton
+    {
+        OKBUTTON,
+        CANCELBUTTON
+    }
+
+    private SelectedButton m_Button;
 
     public void Start()
     {
         m_ControllerManager = FindObjectOfType<PlayerControllerManager>();
         m_DevicesAssigned = m_ControllerManager.m_DevicesAssigned + 1;
+        m_EventSystem = GameObject.Find("EventSystem");
 
         m_InputDevicesUsed = m_ControllerManager.m_InputDevices;
 
@@ -88,6 +99,7 @@ public class LMS : MonoBehaviour {
             GetControllers();
         }
         ManageTime();
+        ManageQuitCanvas();
     }
     public void GetControllers()
     {
@@ -146,7 +158,8 @@ public class LMS : MonoBehaviour {
         m_RemainingTime = m_RoundTime;
         if (m_RoundsRemaining > 0)
         {
-            ResetPlayers();
+            //ResetPlayers();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
             //EndGame();
             Debug.Log(m_RoundsRemaining);
         }
@@ -241,4 +254,47 @@ public class LMS : MonoBehaviour {
             m_PlayersAlive[i] = 1;
         }
     }
+
+    void ManageQuitCanvas()
+    {
+        if(Input.GetButtonDown("BackButton"))
+        {
+            m_QuitCanvas.SetActive(true);
+            m_Button = SelectedButton.OKBUTTON;
+            m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("OK"));
+        }
+
+        if(m_QuitCanvas.activeInHierarchy && m_QuitCanvas != null)
+        {
+            switch (m_Button)
+            {
+                case SelectedButton.OKBUTTON:
+                    if(InputManager.ActiveDevice.Action1.WasPressed)
+                    {
+                        SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
+                    }
+                    break;
+
+                case SelectedButton.CANCELBUTTON:
+                    if (InputManager.ActiveDevice.Action1.WasPressed)
+                    {
+                        m_QuitCanvas.SetActive(false);
+                    }
+                    break;
+            }
+
+            if(m_Button == SelectedButton.OKBUTTON && InputManager.ActiveDevice.DPadRight.WasPressed)
+            {
+                m_Button = SelectedButton.CANCELBUTTON;
+                m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("Cancel"));
+            }
+            else if(m_Button == SelectedButton.CANCELBUTTON && InputManager.ActiveDevice.DPadLeft.WasPressed)
+            {
+                m_Button = SelectedButton.OKBUTTON;
+                m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("OK"));
+            }
+
+        }
+    }
+
 }

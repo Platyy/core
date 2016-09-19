@@ -27,7 +27,6 @@ public class PlayerControllerManager : MonoBehaviour {
             if (InputManager.Devices[i].IsAttached) // Get all connected devices and add them to the list.
                 AddDeviceToArray(InputManager.Devices[i]);
         }
-
     }
 
     public bool AddDeviceToArray(InputDevice _newDevice)

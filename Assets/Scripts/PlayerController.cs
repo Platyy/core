@@ -87,7 +87,7 @@ public class PlayerController : MonoBehaviour {
         m_LineRenderer = gameObject.AddComponent<LineRenderer>();
         m_LineRenderer.material = m_LineMaterial;
         
-        m_LineRenderer.SetWidth(0.2f, 0.2f);
+        m_LineRenderer.SetWidth(0.3f, 0.1f);
         m_LineRenderer.SetVertexCount(2);
         m_LineRenderer.useWorldSpace = true;
 

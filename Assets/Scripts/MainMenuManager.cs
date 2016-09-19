@@ -70,7 +70,7 @@ public class MainMenuManager : MonoBehaviour {
 
     public void ClickPlay()
     {
-        SceneManager.LoadScene("SymmetricalLayout1", LoadSceneMode.Single);
+        SceneManager.LoadScene("AlphaLevel", LoadSceneMode.Single);
     }
 
     public void ClickOptions()

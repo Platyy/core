@@ -16,21 +16,21 @@ public class BulletScript : MonoBehaviour {
     private TrailRenderer m_Trail;
     private Light m_Light;
 
+    private Rigidbody m_RB;
+
     void Awake()
     {
         m_FirstHash = new Hashtable();
         m_SecondHash = new Hashtable();
         
-        m_FirstHash.Add("x", 6.0f);
-        m_FirstHash.Add("y", 2.0f);
-        m_FirstHash.Add("z", 4f);
+        m_FirstHash.Add("x", 3.5f);
+        m_FirstHash.Add("z", 2f);
         m_FirstHash.Add("time", 0.05f);
         m_FirstHash.Add("looptype", iTween.LoopType.none);
         m_FirstHash.Add("easetype", iTween.EaseType.easeInQuint);
 
-        m_SecondHash.Add("x", 1f);
-        m_SecondHash.Add("y", 1f);
-        m_SecondHash.Add("z", 6f);
+        m_SecondHash.Add("x", .75f);
+        m_SecondHash.Add("z", 4f);
         m_SecondHash.Add("delay", 0.05f);
         m_SecondHash.Add("time", 0.25f);
         m_SecondHash.Add("looptype", iTween.LoopType.none);
@@ -40,6 +40,8 @@ public class BulletScript : MonoBehaviour {
         m_LMS = FindObjectOfType<LMS>();
         m_PlayerControllerManager = FindObjectOfType<PlayerControllerManager>();
 
+
+        m_RB = GetComponent<Rigidbody>();
     }
 
     void Start()
@@ -86,6 +88,12 @@ public class BulletScript : MonoBehaviour {
             m_LMS.m_PlayerKillsThisRound[m_ID]++;
             m_LMS.m_PlayerScores[m_ID] += m_LMS.m_ScorePerKill;
         }
-		Destroy (gameObject);
+        else if(other.gameObject.CompareTag("BounceWall"))
+        {
+            Quaternion _rot = Quaternion.LookRotation(m_RB.velocity, Vector3.forward);
+            transform.rotation = _rot;
+        }
+        else
+		    Destroy (gameObject);
 	}
 }

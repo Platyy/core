@@ -29,9 +29,9 @@ public class DroneManager : MonoBehaviour {
         m_Forward = m_Spawn.forward;
         m_Left = -m_Spawn.right;
         m_Right = m_Spawn.right;
-        Debug.DrawRay(transform.position, m_Forward, Color.blue);
-        Debug.DrawRay(transform.position, m_Left, Color.green);
-        Debug.DrawRay(transform.position, m_Right, Color.red);
+        Debug.DrawRay(m_Spawn.transform.position, m_Forward, Color.blue);
+        Debug.DrawRay(m_Spawn.transform.position, m_Left, Color.green);
+        Debug.DrawRay(m_Spawn.transform.position, m_Right, Color.red);
     }
 
     void CheckRays()
@@ -40,7 +40,7 @@ public class DroneManager : MonoBehaviour {
         Ray _leftRay    = new Ray(m_Spawn.transform.position, m_Left);
         Ray _rightRay   = new Ray(m_Spawn.transform.position, m_Right);
 
-        if (Physics.Raycast(_forwardRay, out m_HitInfo, 4f))
+        if (Physics.Raycast(_forwardRay, out m_HitInfo, 2.5f))
         {
             if(m_HitInfo.collider.tag == "Environment" || m_HitInfo.collider.tag == "Player")
             {
@@ -48,7 +48,7 @@ public class DroneManager : MonoBehaviour {
                 m_PlayerController.m_CanShoot = false;
             }
         }
-        else if (Physics.Raycast(_leftRay, out m_HitInfo, 4f))
+        else if (Physics.Raycast(_leftRay, out m_HitInfo, 2.5f))
         {
             if (m_HitInfo.collider.tag == "Environment" || m_HitInfo.collider.tag == "Player")
             {
@@ -56,7 +56,7 @@ public class DroneManager : MonoBehaviour {
                 m_PlayerController.m_CanShoot = false;
             }
         }
-        else if (Physics.Raycast(_rightRay, out m_HitInfo, 4f))
+        else if (Physics.Raycast(_rightRay, out m_HitInfo, 2.5f))
         {
             if (m_HitInfo.collider.tag == "Environment" || m_HitInfo.collider.tag == "Player")
             {
