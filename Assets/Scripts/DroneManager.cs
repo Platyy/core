@@ -19,9 +19,9 @@ public class DroneManager : MonoBehaviour {
 
     void FixedUpdate()
     {
-        GetDirections();
-
-        CheckRays();
+        //GetDirections();
+        //
+        //CheckRays();
     }
 
     void GetDirections()

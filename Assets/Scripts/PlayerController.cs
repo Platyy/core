@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour {
     public bool m_CanShoot = true;
     public int m_PlayerID = 0;
 
+    private bool m_Angled = false;
+
     public int m_ShootingAngles = 16;
 
     public Renderer[] m_Renderer;
@@ -70,7 +72,11 @@ public class PlayerController : MonoBehaviour {
 
     public Material m_LineMaterial;
 
+    public AudioSource m_AS;
+
     private float m_Major, m_Minor;
+
+    public ParticleSystem m_ShotParticle;
 
     void Awake()
     {
@@ -100,7 +106,9 @@ public class PlayerController : MonoBehaviour {
         rightBumperName = "RB" + m_PlayerID;
         leftBumperName = "LB" + m_PlayerID;
 
-        if(m_Device != null)
+        m_ShotParticle.startColor = m_PlayerColor;
+
+        if (m_Device != null)
         {
             m_HasControls = true;
         }
@@ -119,6 +127,7 @@ public class PlayerController : MonoBehaviour {
     {
         timer += Time.deltaTime;
         HandleLaser();
+        //HandleAngledShooting();
     }
 
     void FixedUpdate()
@@ -128,6 +137,23 @@ public class PlayerController : MonoBehaviour {
             Movement();
             Shooting();
         }
+    }
+
+    void HandleAngledShooting()
+    {
+        if(InputManager.ActiveDevice.Action4.WasPressed)
+        {
+            if (m_Angled)
+                m_Angled = false;
+            else
+                m_Angled = true;
+            Debug.Log(m_Angled);
+        }
+
+        if (m_Angled)
+            m_ShootingAngles = 16;
+        else
+            m_ShootingAngles = 360;
     }
 
     void Movement()
@@ -169,6 +195,9 @@ public class PlayerController : MonoBehaviour {
     {
         if (m_Device.GetControl(InputControlType.RightTrigger).IsPressed && timer > fireDelay && m_CanShoot)
         {
+            m_ShotParticle.Play();
+            m_AS.pitch = Random.Range(0.5f, 1.3f);
+            m_AS.Play();
             timer = 0f;
             GameObject _bullet = (GameObject)Instantiate(m_Bullet, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z )), m_Drone.transform.rotation);
             _bullet.GetComponent<BulletScript>().m_ID = m_PlayerID;

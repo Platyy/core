@@ -168,7 +168,6 @@ public class LMS : MonoBehaviour {
             EndGame();
         }
     }
-
     void EndGame()
     {
         m_Scores.SetActive(true);
@@ -264,7 +263,7 @@ public class LMS : MonoBehaviour {
             m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("OK"));
         }
 
-        if(m_QuitCanvas.activeInHierarchy && m_QuitCanvas != null)
+        if(m_QuitCanvas.activeSelf && m_QuitCanvas != null)
         {
             switch (m_Button)
             {
