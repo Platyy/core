@@ -81,6 +81,8 @@ public class LMS : MonoBehaviour {
             m_PlayersAlive[i] = 1;
         }
 
+
+        m_QuitCanvas.SetActive(false);
         Spawn();
     }
     public void Update()
@@ -256,12 +258,14 @@ public class LMS : MonoBehaviour {
 
     void ManageQuitCanvas()
     {
-        if(Input.GetButtonDown("BackButton"))
+        if(Input.GetButtonDown("BackButton")) // Fix this
         {
             m_QuitCanvas.SetActive(true);
             m_Button = SelectedButton.OKBUTTON;
             m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("OK"));
         }
+
+        Debug.Log(m_QuitCanvas.activeSelf);
 
         if(m_QuitCanvas.activeSelf && m_QuitCanvas != null)
         {

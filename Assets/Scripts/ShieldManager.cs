@@ -13,7 +13,6 @@ public class ShieldManager : MonoBehaviour {
     void Start()
     {
         m_PC = transform.GetComponentInParent<PlayerController>();
-        m_HitParticle.startColor = m_PC.m_PlayerColor;
     }
 
 
@@ -21,7 +20,8 @@ public class ShieldManager : MonoBehaviour {
     {
         if(_col.gameObject.tag == "Bullet")
         {
-            m_HitParticle.Play();
+            ParticleSystem _s = (ParticleSystem)Instantiate(m_HitParticle, transform.position, transform.rotation);
+            _s.startColor = m_PC.m_PlayerColor;
             m_PC.HitVibration();
             m_PC.m_CameraScript.Shake(0.35f, 0.3f);
             m_HitsToTake--;

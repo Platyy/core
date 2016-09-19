@@ -105,8 +105,7 @@ public class PlayerController : MonoBehaviour {
         leftTriggerName = "LT" + m_PlayerID;
         rightBumperName = "RB" + m_PlayerID;
         leftBumperName = "LB" + m_PlayerID;
-
-        m_ShotParticle.startColor = m_PlayerColor;
+        
 
         if (m_Device != null)
         {
@@ -195,7 +194,8 @@ public class PlayerController : MonoBehaviour {
     {
         if (m_Device.GetControl(InputControlType.RightTrigger).IsPressed && timer > fireDelay && m_CanShoot)
         {
-            m_ShotParticle.Play();
+            ParticleSystem _s = (ParticleSystem)Instantiate(m_ShotParticle, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z)), m_Drone.transform.rotation);
+            _s.startColor = m_PlayerColor;
             m_AS.pitch = Random.Range(0.5f, 1.3f);
             m_AS.Play();
             timer = 0f;
