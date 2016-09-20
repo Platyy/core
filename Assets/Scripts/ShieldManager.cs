@@ -25,6 +25,10 @@ public class ShieldManager : MonoBehaviour {
             m_PC.HitVibration();
             m_PC.m_CameraScript.Shake(0.35f, 0.3f);
             m_HitsToTake--;
+            if(_col.gameObject != null)
+            {
+                Destroy(_col.gameObject);
+            }
             if(m_HitsToTake == 0)
             {
                 Destroy(gameObject);

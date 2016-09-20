@@ -6,6 +6,10 @@ public class BulletScript : MonoBehaviour {
     Hashtable m_FirstHash;
     Hashtable m_SecondHash;
 
+    private Ray m_Left, m_Center, m_Right;
+
+    private Vector3 m_LeftVec, m_RightVec;
+
 	//public ParticleSystem m_BulletParticle;
     public LMS m_LMS;
     private PlayerControllerManager m_PlayerControllerManager;
@@ -46,6 +50,10 @@ public class BulletScript : MonoBehaviour {
 
     void Start()
     {
+        var _col = GetComponent<SphereCollider>();
+        m_LeftVec = new Vector3(-_col.bounds.extents.x, transform.position.y, transform.position.z);
+        m_RightVec = new Vector3(_col.bounds.extents.x, transform.position.y, transform.position.z);
+
         m_Light = GetComponentInChildren<Light>();
         m_Light.color = m_LMS.m_PlayerColors[m_ID];
 
@@ -68,9 +76,25 @@ public class BulletScript : MonoBehaviour {
         iTween.ScaleTo(transform.GetChild(0).gameObject, m_SecondHash);
     }
 
+    void FixedUpdate()
+    {
+        HandleRays();
+    }
+
+    void HandleRays()
+    {
+        m_Left = new Ray(m_LeftVec, transform.forward);
+        m_Center = new Ray(transform.position, transform.forward);
+        m_Right = new Ray(m_RightVec, transform.forward);
+
+        Debug.DrawRay(m_Left.origin, m_Left.direction, Color.red);
+        Debug.DrawRay(m_Center.origin, m_Center.direction, Color.red);
+        Debug.DrawRay(m_Right.origin, m_Right.direction, Color.red);
+    }
+
 	void OnCollisionEnter (Collision other)
     {
-        if(other.gameObject.tag == "Core")
+        if(other.gameObject.CompareTag("Core"))
         {
             var _pc = other.gameObject.GetComponentInParent<PlayerController>();
             m_HitID = _pc.m_PlayerID;
@@ -87,6 +111,7 @@ public class BulletScript : MonoBehaviour {
             }
             m_LMS.m_PlayerKillsThisRound[m_ID]++;
             m_LMS.m_PlayerScores[m_ID] += m_LMS.m_ScorePerKill;
+            Destroy(gameObject);
         }
         else if(other.gameObject.CompareTag("BounceWall"))
         {
@@ -94,6 +119,6 @@ public class BulletScript : MonoBehaviour {
             transform.rotation = _rot;
         }
         else
-		    Destroy (gameObject);
-	}
+            Destroy(gameObject);
+    }
 }

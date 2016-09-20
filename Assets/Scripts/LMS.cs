@@ -118,6 +118,7 @@ public class LMS : MonoBehaviour {
         _device.StopVibration();
     }
 
+
     public void ManagePlayers()
     {
         for (int i = 0; i < m_DevicesAssigned; i++)
@@ -258,14 +259,12 @@ public class LMS : MonoBehaviour {
 
     void ManageQuitCanvas()
     {
-        if(Input.GetButtonDown("BackButton")) // Fix this
+        if(Input.GetButtonDown("BackButton"))
         {
             m_QuitCanvas.SetActive(true);
             m_Button = SelectedButton.OKBUTTON;
             m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("OK"));
         }
-
-        Debug.Log(m_QuitCanvas.activeSelf);
 
         if(m_QuitCanvas.activeSelf && m_QuitCanvas != null)
         {

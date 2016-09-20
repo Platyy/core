@@ -68,7 +68,7 @@ public class PlayerController : MonoBehaviour {
     
     public bool m_HasControls = false;
 
-    private LineRenderer m_LineRenderer;
+    private LineRenderer m_LineRenderer, m_SecondRenderer;
 
     public Material m_LineMaterial;
 
@@ -96,6 +96,8 @@ public class PlayerController : MonoBehaviour {
         m_LineRenderer.SetWidth(0.3f, 0.1f);
         m_LineRenderer.SetVertexCount(2);
         m_LineRenderer.useWorldSpace = true;
+        //m_SecondRenderer = m_LineRenderer;
+        //m_SecondRenderer.SetWidth(0.1f, 0.3f);
 
         movementXName = "LSX" + m_PlayerID;
         movementYName = "LSY" + m_PlayerID;
@@ -105,7 +107,7 @@ public class PlayerController : MonoBehaviour {
         leftTriggerName = "LT" + m_PlayerID;
         rightBumperName = "RB" + m_PlayerID;
         leftBumperName = "LB" + m_PlayerID;
-        
+
 
         if (m_Device != null)
         {
@@ -118,6 +120,7 @@ public class PlayerController : MonoBehaviour {
         }
         m_LineRenderer.SetColors(m_PlayerColor, m_PlayerColor);
 
+        StopVibrations(m_Device);
         m_Major = 360f / m_ShootingAngles;
         m_Minor = m_Major / 2;
     }
@@ -137,6 +140,12 @@ public class PlayerController : MonoBehaviour {
             Shooting();
         }
     }
+
+    public void StopVibrations(InputDevice _device)
+    {
+        _device.StopVibration();
+    }
+
 
     void HandleAngledShooting()
     {
@@ -196,13 +205,14 @@ public class PlayerController : MonoBehaviour {
         {
             ParticleSystem _s = (ParticleSystem)Instantiate(m_ShotParticle, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z)), m_Drone.transform.rotation);
             _s.startColor = m_PlayerColor;
+            Destroy(_s.gameObject, 2f);
             m_AS.pitch = Random.Range(0.5f, 1.3f);
             m_AS.Play();
             timer = 0f;
             GameObject _bullet = (GameObject)Instantiate(m_Bullet, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z )), m_Drone.transform.rotation);
             _bullet.GetComponent<BulletScript>().m_ID = m_PlayerID;
             _bullet.GetComponent<Rigidbody>().AddForce(m_BulletSpawn.forward * m_BulletSpeed, ForceMode.Impulse);
-            m_CameraScript.Shake(0.25f, 0.1f);
+            m_CameraScript.Shake(0.1f, 0.1f);
             Destroy(_bullet, 3);
         }
     }
@@ -240,13 +250,30 @@ public class PlayerController : MonoBehaviour {
         Ray _ray = new Ray(m_BulletSpawn.position, m_BulletSpawn.forward);
         RaycastHit _hit;
         m_LineRenderer.SetPosition(0, _ray.origin);
+
         if (Physics.Raycast(_ray, out _hit, 1000f))
         {
+
             m_LineRenderer.SetPosition(1, _hit.point);
+           // m_SecondRenderer.SetPosition(0, _hit.point);
+
+           // if (_hit.transform.CompareTag("BounceWall"))
+           // {
+           //
+           //     Ray _secondRay = new Ray(_hit.point, Vector3.Reflect(_ray.direction, _hit.normal));
+           //
+           //     RaycastHit _secondHit;
+           //
+           //     if(Physics.Raycast(_secondRay, out _secondHit, 1000f))
+           //     {
+           //
+           //         m_SecondRenderer.SetPosition(1, _secondHit.point);
+           //     }
+           // }
         }
         else
         {
-            m_LineRenderer.SetPosition(1, _ray.direction * 10f);    
+            m_LineRenderer.SetPosition(1, _ray.direction * 10f);
         }
         Debug.DrawLine(_ray.origin, _hit.point, Color.red);
     }
