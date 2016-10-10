@@ -16,6 +16,8 @@ public class LMS : MonoBehaviour {
     float m_Mins;
     float m_Secs;
 
+    public ParticleSystem m_ExplosionParticle;
+
     public Color[] m_PlayerColors = new Color[4] { Color.cyan, new Color(1.0f, 0.5f, 0), Color.magenta, Color.green };
 
     private InputDevice[] m_InputDevicesUsed = new InputDevice[4];
@@ -118,6 +120,10 @@ public class LMS : MonoBehaviour {
         _device.StopVibration();
     }
 
+    public void PlayDeath(GameObject _player)
+    {
+        var _go = (GameObject)Instantiate(m_ExplosionParticle, _player.transform.position, Quaternion.identity);
+    }
 
     public void ManagePlayers()
     {

@@ -14,10 +14,18 @@ public class MainMenuManager : MonoBehaviour {
     public GameObject m_LevelSelect, m_DynamicToggle, m_ShieldSlider, m_MoveSlider, m_FireSlider, m_LengthSlider;
     private GameObject m_DynamicBG, m_ShieldBG, m_MoveBG, m_FireBG, m_LengthBG;
 
+    public GameObject m_PlayerReadyIcons;
+
+    private List<InputDevice> m_MenuDevices;
+
     public List<Sprite> m_LevelImages;
     public List<string> m_LevelScenes;
 
+    public Button m_StartButton;
+
     private GameObject m_EventSystem;
+
+    private int m_PlayersReady = 0;
 
     private bool m_Mutators = false;
 
@@ -55,6 +63,7 @@ public class MainMenuManager : MonoBehaviour {
         m_EventSystem = GameObject.Find("EventSystem");
         m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("PlayButton"));
         m_CurrentButton = SelectedButton.PLAYBUTTON;
+        m_StartButton.interactable = false;
     }
 
     void Update()
@@ -65,6 +74,7 @@ public class MainMenuManager : MonoBehaviour {
         }
         else UpdateMutators();
 
+        UpdateControllers();
     }
 
     public void ClickPlay()
@@ -343,9 +353,27 @@ public class MainMenuManager : MonoBehaviour {
 
     }
 
+    void UpdateControllers()
+    {
+        if(InputManager.ActiveDevice.Action4.WasPressed && !m_MenuDevices.Contains(InputManager.ActiveDevice))
+        {
+            UpdatePlayerCount();
+            
+        }
+
+    }
+
+    void UpdatePlayerCount()
+    {
+        m_MenuDevices.Add(InputManager.ActiveDevice);
+        m_PlayersReady++;
+        var _playerIcon = m_PlayerReadyIcons.transform.GetChild(m_PlayersReady - 1);
+        _playerIcon.transform.GetChild(0).gameObject.SetActive(false);
+        _playerIcon.transform.GetChild(1).gameObject.SetActive(true);
+    }
+
     public void ClickOptions()
     {
-
 
     }
 
@@ -353,7 +381,4 @@ public class MainMenuManager : MonoBehaviour {
     {
         Application.Quit();
     }
-
-
-
 }

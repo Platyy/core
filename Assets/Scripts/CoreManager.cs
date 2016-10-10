@@ -9,6 +9,7 @@ public class CoreManager : MonoBehaviour {
     {
         if(_col.gameObject.tag == "Bullet")
         {
+            FindObjectOfType<LMS>().PlayDeath(gameObject);
             Destroy(m_Player);
         }
 

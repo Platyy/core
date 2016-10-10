@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour {
     public int m_ShootingAngles = 16;
 
     public Renderer[] m_Renderer;
-    
+
     // Public variables
     // Movement
     public float moveSpeed; // Acceleration speed
