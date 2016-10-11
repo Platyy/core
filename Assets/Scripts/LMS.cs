@@ -17,6 +17,7 @@ public class LMS : MonoBehaviour {
     float m_Secs;
 
     public ParticleSystem m_ExplosionParticle;
+    public ParticleSystem m_HitParticle;
 
     public Color[] m_PlayerColors = new Color[4] { Color.cyan, new Color(1.0f, 0.5f, 0), Color.magenta, Color.green };
 
@@ -131,11 +132,6 @@ public class LMS : MonoBehaviour {
         _device.StopVibration();
     }
 
-    public void PlayDeath(GameObject _player)
-    {
-        var _go = (GameObject)Instantiate(m_ExplosionParticle, _player.transform.position, Quaternion.identity);
-
-    }
 
     public void ManagePlayers()
     {
@@ -328,6 +324,20 @@ public class LMS : MonoBehaviour {
             }
 
         }
+    }
+
+    public void PlayHitParticle(Vector3 _position, Color _color)
+    {
+        var _go = (ParticleSystem)Instantiate(m_HitParticle, _position, Quaternion.identity);
+        _go.GetComponent<Renderer>().material.SetColor("_EmissionColor", _color);
+        Destroy(_go, 2f);
+    }
+    public void PlayDeath(GameObject _player, Color _color)
+    {
+        var _go = (ParticleSystem)Instantiate(m_ExplosionParticle, _player.transform.position, Quaternion.identity);
+        _go.GetComponent<Renderer>().material.SetColor("_EmissionColor", _color);
+        _go.Play();
+        Destroy(_go, 2f);
     }
 
 }

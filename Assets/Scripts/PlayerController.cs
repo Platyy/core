@@ -123,6 +123,7 @@ public class PlayerController : MonoBehaviour {
         StopVibrations(m_Device);
         m_Major = 360f / m_ShootingAngles;
         m_Minor = m_Major / 2;
+        GetComponentInChildren<CoreManager>().m_ID = m_PlayerID;
     }
 
     void Update()
@@ -213,7 +214,17 @@ public class PlayerController : MonoBehaviour {
             _bullet.GetComponent<BulletScript>().m_ID = m_PlayerID;
             _bullet.GetComponent<Rigidbody>().AddForce(m_BulletSpawn.forward * m_BulletSpeed, ForceMode.Impulse);
             m_CameraScript.Shake(0.1f, 0.1f);
+            StartCoroutine(BulletFade(_bullet));
             Destroy(_bullet, 3);
+        }
+    }
+
+    IEnumerator BulletFade(GameObject _bullet)
+    {
+        yield return new WaitForSeconds(2.95f);
+        if(_bullet != null)
+        {
+            m_LMS.PlayHitParticle(_bullet.transform.position, m_PlayerColor);
         }
     }
 

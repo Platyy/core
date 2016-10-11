@@ -17,8 +17,9 @@ public class BulletScript : MonoBehaviour {
     public int m_HitID = 0;
     private MeshRenderer m_Renderer;
     private Material[] m_Materials;
-    private TrailRenderer m_Trail;
     private Light m_Light;
+
+    private Color[] m_HDRColors = new Color[4] { new Color(1, 2, 2), new Color(2, 1.5f, 1), new Color(1, 2, 1), new Color(1, 2, 1) };
 
     private Rigidbody m_RB;
 
@@ -26,7 +27,8 @@ public class BulletScript : MonoBehaviour {
     {
         m_FirstHash = new Hashtable();
         m_SecondHash = new Hashtable();
-        
+
+
         m_FirstHash.Add("x", 3.5f);
         m_FirstHash.Add("z", 2f);
         m_FirstHash.Add("time", 0.05f);
@@ -58,19 +60,18 @@ public class BulletScript : MonoBehaviour {
         m_Light.color = m_LMS.m_PlayerColors[m_ID];
 
         m_Materials = gameObject.GetComponentInChildren<MeshRenderer>().materials;
+        
         for (int i = 0; i < m_Materials.Length; i++)
         {
             m_Materials[i].SetColor("_Color", m_LMS.m_PlayerColors[m_ID]);
         }
 
         gameObject.GetComponentInChildren<MeshRenderer>().materials = m_Materials;
-
-        m_Materials = gameObject.GetComponentInChildren<TrailRenderer>().materials;
+        
         for (int i = 0; i < m_Materials.Length; i++)
         {
             m_Materials[i].SetColor("_Color", m_LMS.m_PlayerColors[m_ID]);
         }
-        gameObject.GetComponentInChildren<TrailRenderer>().materials = m_Materials;
 
         iTween.ScaleTo(transform.GetChild(0).gameObject, m_FirstHash);
         iTween.ScaleTo(transform.GetChild(0).gameObject, m_SecondHash);
@@ -94,7 +95,7 @@ public class BulletScript : MonoBehaviour {
 
 	void OnCollisionEnter (Collision other)
     {
-        if(other.gameObject.CompareTag("Core"))
+        if (other.gameObject.CompareTag("Core"))
         {
             var _pc = other.gameObject.GetComponentInParent<PlayerController>();
             m_HitID = _pc.m_PlayerID;
@@ -113,12 +114,15 @@ public class BulletScript : MonoBehaviour {
             m_LMS.m_PlayerScores[m_ID] += m_LMS.m_ScorePerKill;
             Destroy(gameObject);
         }
-        else if(other.gameObject.CompareTag("BounceWall"))
+        else if (other.gameObject.CompareTag("BounceWall"))
         {
             Quaternion _rot = Quaternion.LookRotation(m_RB.velocity, Vector3.forward);
             transform.rotation = _rot;
         }
         else
+        {
+            m_LMS.PlayHitParticle(transform.position, m_LMS.m_PlayerColors[m_ID]);
             Destroy(gameObject);
+        }
     }
 }
