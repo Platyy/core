@@ -12,11 +12,13 @@ public class MainMenuManager : MonoBehaviour {
     public GameObject m_MenuCanvas, m_MutatorCanvas;
 
     public GameObject m_LevelSelect, m_DynamicToggle, m_ShieldSlider, m_MoveSlider, m_FireSlider, m_LengthSlider;
-    private GameObject m_DynamicBG, m_ShieldBG, m_MoveBG, m_FireBG, m_LengthBG;
+
+    public int m_SelectedShieldHealth, m_SelectedMoveSpeed, m_SelectedFireRate, m_SelectedGameLength;
+    public int m_PlayersReady = 0;
+    public InputDevice[] m_MenuDevices;
 
     public GameObject m_PlayerReadyIcons;
 
-    private List<InputDevice> m_MenuDevices;
 
     public List<Sprite> m_LevelImages;
     public List<string> m_LevelScenes;
@@ -25,9 +27,10 @@ public class MainMenuManager : MonoBehaviour {
 
     private GameObject m_EventSystem;
 
-    private int m_PlayersReady = 0;
 
     private bool m_Mutators = false;
+
+    private bool m_MenuScene = true;
 
     private enum SelectedButton
     {
@@ -43,13 +46,14 @@ public class MainMenuManager : MonoBehaviour {
         SHIELDHEALTH,
         MOVESPEED,
         FIRERATE,
-        GAMELENGTH
+        GAMELENGTH,
+        STARTGAME
     }
 
     private enum LevelSelected
     {
-        LEVEL1,
-        LEVEL2,
+        Level1,
+        Level2,
     }
 
     private SelectedButton m_CurrentButton;
@@ -60,6 +64,8 @@ public class MainMenuManager : MonoBehaviour {
 
     void Start()
     {
+        DontDestroyOnLoad(transform);
+        m_MenuDevices = new InputDevice[4];
         m_EventSystem = GameObject.Find("EventSystem");
         m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("PlayButton"));
         m_CurrentButton = SelectedButton.PLAYBUTTON;
@@ -68,13 +74,16 @@ public class MainMenuManager : MonoBehaviour {
 
     void Update()
     {
-        if (!m_Mutators)
+        if (m_MenuScene)
         {
-            UpdateMain();
-        }
-        else UpdateMutators();
+            if (!m_Mutators)
+            {
+                UpdateMain();
+            }
+            else UpdateMutators();
 
-        UpdateControllers();
+            UpdateControllers();
+        }
     }
 
     public void ClickPlay()
@@ -83,7 +92,7 @@ public class MainMenuManager : MonoBehaviour {
         m_MenuCanvas.SetActive(false);
         m_MutatorCanvas.SetActive(true);
         m_MutatorButtons = MutatorButtons.LEVELSELECT;
-        m_LevelSelected = LevelSelected.LEVEL1;
+        m_LevelSelected = LevelSelected.Level1;
         m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(m_LevelSelect);
         m_Mutators = true;
         //SceneManager.LoadScene("AlphaLevel", LoadSceneMode.Single);
@@ -131,7 +140,6 @@ public class MainMenuManager : MonoBehaviour {
                 }
                 break;
         }
-
     }
 
     void UpdateMutators()
@@ -241,6 +249,8 @@ public class MainMenuManager : MonoBehaviour {
                 }
                 #endregion
 
+                m_SelectedShieldHealth = (int)m_ShieldSlider.transform.GetChild(1).GetComponent<Slider>().value;
+
                 break;
             case MutatorButtons.MOVESPEED:
 
@@ -276,6 +286,8 @@ public class MainMenuManager : MonoBehaviour {
                         m_MoveSlider.transform.GetChild(1).GetComponent<Slider>().value++;
                 }
                 #endregion
+
+                m_SelectedMoveSpeed = (int)m_MoveSlider.transform.GetChild(1).GetComponent<Slider>().value;
 
                 break;
             case MutatorButtons.FIRERATE:
@@ -314,6 +326,8 @@ public class MainMenuManager : MonoBehaviour {
 
                 #endregion
 
+                m_SelectedFireRate = (int)m_FireSlider.transform.GetChild(1).GetComponent<Slider>().value;
+
                 break;
             case MutatorButtons.GAMELENGTH:
 
@@ -323,7 +337,11 @@ public class MainMenuManager : MonoBehaviour {
                     m_LengthSlider.transform.GetChild(0).GetComponent<Outline>().enabled = true;
                 }
 
-
+                if (InputManager.ActiveDevice.LeftStickDown.WasPressed && m_PlayersReady > 0 || InputManager.ActiveDevice.DPadDown.WasPressed && m_PlayersReady > 0)
+                {
+                    m_LengthSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
+                    m_MutatorButtons++;
+                }
                 if (InputManager.ActiveDevice.LeftStickUp.WasPressed || InputManager.ActiveDevice.DPadUp.WasPressed)
                 {
                     m_LengthSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
@@ -346,7 +364,27 @@ public class MainMenuManager : MonoBehaviour {
 
                 #endregion
 
+                m_SelectedGameLength = (int)m_LengthSlider.transform.GetChild(1).GetComponent<Slider>().value;
+
                 break;
+            case MutatorButtons.STARTGAME:
+                #region STARTUPDOWN
+                if (m_StartButton.interactable == false)
+                {
+                    m_StartButton.interactable = true;
+                    
+                }
+                m_StartButton.Select();
+                if (InputManager.ActiveDevice.LeftStickUp.WasPressed || InputManager.ActiveDevice.DPadUp.WasPressed)
+                {
+                    m_LengthSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
+                    m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(null);
+                    m_MutatorButtons--;
+                }
+
+                #endregion
+                break;
+
             default:
                 break;
         }
@@ -355,18 +393,16 @@ public class MainMenuManager : MonoBehaviour {
 
     void UpdateControllers()
     {
-        if(InputManager.ActiveDevice.Action4.WasPressed && !m_MenuDevices.Contains(InputManager.ActiveDevice))
+        if(InputManager.ActiveDevice.CommandWasPressed && !m_MenuDevices.Contains(InputManager.ActiveDevice) && m_PlayersReady < 5)
         {
-            UpdatePlayerCount();
-            
+            UpdatePlayerCount(InputManager.ActiveDevice);
         }
-
     }
 
-    void UpdatePlayerCount()
+    void UpdatePlayerCount(InputDevice _activeDevice)
     {
-        m_MenuDevices.Add(InputManager.ActiveDevice);
         m_PlayersReady++;
+        m_MenuDevices[m_PlayersReady -1] = _activeDevice;
         var _playerIcon = m_PlayerReadyIcons.transform.GetChild(m_PlayersReady - 1);
         _playerIcon.transform.GetChild(0).gameObject.SetActive(false);
         _playerIcon.transform.GetChild(1).gameObject.SetActive(true);
@@ -380,5 +416,19 @@ public class MainMenuManager : MonoBehaviour {
     public void ClickQuit()
     {
         Application.Quit();
+    }
+
+    public void LoadLevel()
+    {
+        if (m_DynamicToggle.transform.GetChild(1).GetComponent<Toggle>().isOn)
+        {
+            SceneManager.LoadScene(m_LevelSelected.ToString() + "Dynamic", LoadSceneMode.Single);
+        }
+        else
+        {
+            SceneManager.LoadScene(m_LevelSelected.ToString(), LoadSceneMode.Single);
+        }
+
+        m_MenuScene = false;
     }
 }

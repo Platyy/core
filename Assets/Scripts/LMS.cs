@@ -57,6 +57,8 @@ public class LMS : MonoBehaviour {
 
     private bool m_NewGame = true;
 
+    private MainMenuManager m_MenuManager;
+
     private enum SelectedButton
     {
         OKBUTTON,
@@ -65,19 +67,28 @@ public class LMS : MonoBehaviour {
 
     private SelectedButton m_Button;
 
+    void Awake()
+    {
+        m_MenuManager = FindObjectOfType<MainMenuManager>();
+        if(m_MenuManager == null)
+        {
+            Debug.LogError("Couldn't find a menumanager");
+        }
+    }
+
     public void Start()
     {
         m_ControllerManager = FindObjectOfType<PlayerControllerManager>();
-        m_DevicesAssigned = m_ControllerManager.m_DevicesAssigned + 1;
+        m_DevicesAssigned = m_MenuManager.m_PlayersReady;
         m_EventSystem = GameObject.Find("EventSystem");
 
-        m_InputDevicesUsed = m_ControllerManager.m_InputDevices;
+        m_InputDevicesUsed = m_MenuManager.m_MenuDevices;
 
-        m_PlayersAlive = new int[m_DevicesAssigned];
-        m_PlayerList = new GameObject[m_DevicesAssigned];
+        m_PlayersAlive = new int[m_MenuManager.m_PlayersReady];
+        m_PlayerList = new GameObject[m_MenuManager.m_PlayersReady];
 
         m_Scores.SetActive(false);
-        m_RemainingTime = m_RoundTime;
+        m_RemainingTime = m_MenuManager.m_SelectedGameLength * 60;
         for (int i = 0; i < m_PlayersAlive.Length; i++)
         {
             m_PlayersAlive[i] = 1;
@@ -123,6 +134,7 @@ public class LMS : MonoBehaviour {
     public void PlayDeath(GameObject _player)
     {
         var _go = (GameObject)Instantiate(m_ExplosionParticle, _player.transform.position, Quaternion.identity);
+
     }
 
     public void ManagePlayers()
@@ -223,7 +235,13 @@ public class LMS : MonoBehaviour {
         {
             GameObject _go = (GameObject)Instantiate(m_Player, m_Spawns[i].position, m_Spawns[i].rotation);
             var _pc = _go.GetComponent<PlayerController>();
-            
+            for (int j = 0; j < _go.transform.GetChild(0).transform.childCount; j++)
+            {
+                _go.transform.GetChild(0).transform.GetChild(j).GetComponent<ShieldManager>().m_HitsToTake = m_MenuManager.m_SelectedShieldHealth;
+            }
+            _pc.fireDelay = m_MenuManager.m_SelectedFireRate * 0.1f;
+            _pc.moveSpeed = _pc.moveSpeed + (m_MenuManager.m_SelectedMoveSpeed * 50);
+
             m_InstantiatedPlayers.Add(_go);
             m_PlayerList[i] = _go;
             _pc.m_PlayerID = i;
@@ -250,6 +268,12 @@ public class LMS : MonoBehaviour {
             m_InstantiatedPlayers.Add(_go);
             m_PlayerList[i] = _go;
             var _pc = _go.GetComponent<PlayerController>();
+            for (int j = 0; j < _go.transform.GetChild(0).transform.childCount; j++)
+            {
+                _go.transform.GetChild(0).transform.GetChild(j).GetComponent<ShieldManager>().m_HitsToTake = m_MenuManager.m_SelectedShieldHealth;
+            }
+            _pc.fireDelay = m_MenuManager.m_SelectedFireRate * 0.1f;
+            _pc.moveSpeed = _pc.moveSpeed + (m_MenuManager.m_SelectedMoveSpeed * 50);
             _pc.m_PlayerID = i;
 
             _pc.m_Renderer = _go.GetComponentsInChildren<Renderer>();
@@ -279,6 +303,7 @@ public class LMS : MonoBehaviour {
                 case SelectedButton.OKBUTTON:
                     if(InputManager.ActiveDevice.Action1.WasPressed)
                     {
+                        Destroy(m_MenuManager.gameObject);
                         SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
                     }
                     break;

@@ -8,7 +8,7 @@ public class ShieldManager : MonoBehaviour {
     private PlayerController m_PC;
     public ParticleSystem m_HitParticle;
 
-    public int m_HitsToTake = 3;
+    public int m_HitsToTake;
 
     void Start()
     {

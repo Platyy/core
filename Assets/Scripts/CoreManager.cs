@@ -12,6 +12,5 @@ public class CoreManager : MonoBehaviour {
             FindObjectOfType<LMS>().PlayDeath(gameObject);
             Destroy(m_Player);
         }
-
     }
 }
