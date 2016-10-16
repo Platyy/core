@@ -47,8 +47,6 @@ public class LMS : MonoBehaviour {
 
     public InputDevice[] m_InputDevices = new InputDevice[4];
     public List<GameObject> m_InstantiatedPlayers;
-    
-    private bool m_P1Ready = false, m_P2Ready = false, m_P3Ready = false, m_P4Ready = false;
 
     private PlayerControllerManager m_ControllerManager;
     private GameObject m_EventSystem;
@@ -99,6 +97,7 @@ public class LMS : MonoBehaviour {
         m_QuitCanvas.SetActive(false);
         Spawn();
     }
+
     public void Update()
     {
         if (Input.GetButtonDown("StartButton") && m_NewGame)
@@ -117,6 +116,7 @@ public class LMS : MonoBehaviour {
         ManageTime();
         ManageQuitCanvas();
     }
+
     public void GetControllers()
     {
         PlayerController[] _controller = FindObjectsOfType<PlayerController>();
@@ -125,13 +125,13 @@ public class LMS : MonoBehaviour {
             m_InputDevices[i] = _controller[i].m_Device;
         }
     }
+
     IEnumerator DeathVibration(InputDevice _device)
     {
         _device.Vibrate(1f);
         yield return new WaitForSeconds(0.75f);
         _device.StopVibration();
     }
-
 
     public void ManagePlayers()
     {
@@ -145,10 +145,20 @@ public class LMS : MonoBehaviour {
         }
         if (m_CurrentDead >= m_DevicesAssigned - 1)
         {
-            EndRound();
+            StartCoroutine(FinalKill());
             //EndGame();
         }
         else m_CurrentDead = 0;
+    }
+
+    IEnumerator FinalKill()
+    {
+        Time.timeScale = 0.5f;
+        yield return new WaitForSeconds(1);
+        Time.timeScale = Mathf.Lerp(0.5f, 1.0f, 1.0f);
+        Debug.Log(Time.timeScale + " Lerping Up");
+        yield return new WaitForSeconds(1);
+        EndRound();
     }
 
     void ManageTime()
@@ -185,6 +195,7 @@ public class LMS : MonoBehaviour {
             EndGame();
         }
     }
+
     void EndGame()
     {
         m_Scores.SetActive(true);
@@ -332,6 +343,7 @@ public class LMS : MonoBehaviour {
         _go.GetComponent<Renderer>().material.SetColor("_EmissionColor", _color);
         Destroy(_go, 2f);
     }
+
     public void PlayDeath(GameObject _player, Color _color)
     {
         var _go = (ParticleSystem)Instantiate(m_ExplosionParticle, _player.transform.position, Quaternion.identity);

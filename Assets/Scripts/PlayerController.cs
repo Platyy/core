@@ -147,7 +147,6 @@ public class PlayerController : MonoBehaviour {
         _device.StopVibration();
     }
 
-
     void HandleAngledShooting()
     {
         if(InputManager.ActiveDevice.Action4.WasPressed)
