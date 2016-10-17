@@ -12,6 +12,11 @@ public class LMS : MonoBehaviour {
     private int m_RoundsRemaining = 3;
     public float m_RoundTime = 60f;
     private float m_RemainingTime = 60f;
+    public int[] m_PlayerScores = new int[4];
+
+    public GameObject m_ScoreObject;
+    private Text[] m_PScores = new Text[4];
+    private ScoreCounter m_ScoreCounter;
 
     float m_Mins;
     float m_Secs;
@@ -30,8 +35,6 @@ public class LMS : MonoBehaviour {
 
     public Text m_TimeDisplay;
     public GameObject m_Scores;
-
-    public int[] m_PlayerScores = new int[] { 0, 0, 0, 0 };
 
     public int[] m_PlayersAlive;
     public int[] m_PlayerKillsThisRound = new int[] { 0, 0, 0, 0 };
@@ -77,6 +80,13 @@ public class LMS : MonoBehaviour {
 
     public void Start()
     {
+        if(m_ScoreCounter == null)
+        {
+            m_ScoreCounter = FindObjectOfType<ScoreCounter>();
+        }
+
+        DontDestroyOnLoad(m_ScoreCounter);
+
         m_ControllerManager = FindObjectOfType<PlayerControllerManager>();
         m_DevicesAssigned = m_MenuManager.m_PlayersReady;
         m_EventSystem = GameObject.Find("EventSystem");
@@ -96,10 +106,18 @@ public class LMS : MonoBehaviour {
 
         m_QuitCanvas.SetActive(false);
         Spawn();
+
+        for (int i = 0; i < 4; i++)
+        {
+            m_PScores[i] = m_ScoreObject.transform.GetChild(i).gameObject.transform.GetChild(0).GetComponent<Text>();
+            m_PScores[i].text = m_ScoreCounter.m_PlayerScores[i].ToString();
+        }
     }
 
     public void Update()
     {
+        //Debug.Log(m_PlayersAlive[0] + " " + m_PlayersAlive[1]);
+
         if (Input.GetButtonDown("StartButton") && m_NewGame)
         {
             m_RoundStarted = true;
@@ -156,9 +174,28 @@ public class LMS : MonoBehaviour {
         Time.timeScale = 0.5f;
         yield return new WaitForSeconds(1);
         Time.timeScale = Mathf.Lerp(0.5f, 1.0f, 1.0f);
-        Debug.Log(Time.timeScale + " Lerping Up");
         yield return new WaitForSeconds(1);
+        LastAliveScore();
         EndRound();
+    }
+
+    void LastAliveScore()
+    {
+        int _count = 0;
+        int _player = -1;
+        for (int i = 0; i < m_PlayersAlive.Length; i++)
+        {
+            if(m_PlayersAlive[i] == 1)
+            {
+                _count++;
+                _player = i;
+                break;
+            }
+        }
+        if(_count == 1)
+        {
+            m_ScoreCounter.m_PlayerScores[_player] += 1;
+        }
     }
 
     void ManageTime()
@@ -311,6 +348,7 @@ public class LMS : MonoBehaviour {
                     if(InputManager.ActiveDevice.Action1.WasPressed)
                     {
                         Destroy(m_MenuManager.gameObject);
+                        Destroy(m_ScoreCounter.gameObject);
                         SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
                     }
                     break;
