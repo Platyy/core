@@ -23,11 +23,12 @@ public class BulletScript : MonoBehaviour {
 
     private Rigidbody m_RB;
 
+    private ParticleSystemRenderer m_PS;
+
     void Awake()
     {
         m_FirstHash = new Hashtable();
         m_SecondHash = new Hashtable();
-
 
         m_FirstHash.Add("x", 3.5f);
         m_FirstHash.Add("z", 2f);
@@ -48,6 +49,7 @@ public class BulletScript : MonoBehaviour {
 
 
         m_RB = GetComponent<Rigidbody>();
+        m_PS = transform.GetChild(0).GetComponent<ParticleSystemRenderer>();
     }
 
     void Start()
@@ -56,7 +58,7 @@ public class BulletScript : MonoBehaviour {
         m_LeftVec = new Vector3(-_col.bounds.extents.x, transform.position.y, transform.position.z);
         m_RightVec = new Vector3(_col.bounds.extents.x, transform.position.y, transform.position.z);
 
-        m_Light = GetComponentInChildren<Light>();
+        m_Light = transform.GetChild(2).GetComponent<Light>();
         m_Light.color = m_LMS.m_PlayerColors[m_ID];
 
         m_Materials = gameObject.GetComponentInChildren<MeshRenderer>().materials;
@@ -67,14 +69,16 @@ public class BulletScript : MonoBehaviour {
         }
 
         gameObject.GetComponentInChildren<MeshRenderer>().materials = m_Materials;
-        
-        for (int i = 0; i < m_Materials.Length; i++)
-        {
-            m_Materials[i].SetColor("_Color", m_LMS.m_PlayerColors[m_ID]);
-        }
 
-        iTween.ScaleTo(transform.GetChild(0).gameObject, m_FirstHash);
-        iTween.ScaleTo(transform.GetChild(0).gameObject, m_SecondHash);
+        //for (int i = 0; i < m_Materials.Length; i++)
+        //{
+        //    m_Materials[i].SetColor("_Color", m_LMS.m_PlayerColors[m_ID]);
+        //}
+
+        m_PS.material.SetColor("_EmissionColor", m_LMS.m_PlayerColors[m_ID]);
+
+        iTween.ScaleTo(transform.GetChild(1).gameObject, m_FirstHash);
+        iTween.ScaleTo(transform.GetChild(1).gameObject, m_SecondHash);
     }
 
     void FixedUpdate()

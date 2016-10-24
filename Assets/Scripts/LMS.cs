@@ -285,6 +285,8 @@ public class LMS : MonoBehaviour {
             }
             _pc.fireDelay = m_MenuManager.m_SelectedFireRate * 0.1f;
             _pc.moveSpeed = _pc.moveSpeed + (m_MenuManager.m_SelectedMoveSpeed * 50);
+            _pc.m_BulletSpeed = _pc.m_BulletSpeed * m_MenuManager.m_SelectedBulletSpeed;
+            _pc.m_ShieldRotationSpeed = _pc.m_ShieldRotationSpeed * m_MenuManager.m_SelectedShieldRotateSpeed;
 
             m_InstantiatedPlayers.Add(_go);
             m_PlayerList[i] = _go;
@@ -318,6 +320,8 @@ public class LMS : MonoBehaviour {
             }
             _pc.fireDelay = m_MenuManager.m_SelectedFireRate * 0.1f;
             _pc.moveSpeed = _pc.moveSpeed + (m_MenuManager.m_SelectedMoveSpeed * 50);
+            _pc.m_BulletSpeed = _pc.m_BulletSpeed * m_MenuManager.m_SelectedBulletSpeed;
+            _pc.m_ShieldRotationSpeed = _pc.m_ShieldRotationSpeed * m_MenuManager.m_SelectedShieldRotateSpeed;
             _pc.m_PlayerID = i;
 
             _pc.m_Renderer = _go.GetComponentsInChildren<Renderer>();
