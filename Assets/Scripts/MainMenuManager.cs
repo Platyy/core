@@ -11,14 +11,16 @@ public class MainMenuManager : MonoBehaviour {
 
     public GameObject m_MenuCanvas, m_MutatorCanvas;
 
-    public GameObject m_LevelSelect, m_DynamicToggle, m_ShieldSlider, m_MoveSlider, m_FireSlider, m_LengthSlider;
+    public GameObject m_LevelSelect, m_DynamicToggle, m_ShieldSlider, m_MoveSlider, m_FireSlider, 
+        m_LengthSlider, m_LevelHighlight, m_BulletSlider, m_ShieldRotateSlider, m_RoundSlider, m_PresetSlider;
 
-    public int m_SelectedShieldHealth, m_SelectedMoveSpeed, m_SelectedFireRate, m_SelectedGameLength;
+    public int m_SelectedShieldHealth, m_SelectedMoveSpeed, m_SelectedFireRate, m_SelectedGameLength, m_SelectedBulletSpeed, m_SelectedShieldRotateSpeed, m_SelectedRounds;
     public int m_PlayersReady = 0;
     public InputDevice[] m_MenuDevices;
 
     public GameObject m_PlayerReadyIcons;
 
+    public GameObject m_BGSphere;
 
     public List<Sprite> m_LevelImages;
     public List<string> m_LevelScenes;
@@ -42,13 +44,38 @@ public class MainMenuManager : MonoBehaviour {
     private enum MutatorButtons
     {
         LEVELSELECT,
+        PRESET,
         DYNAMICLEVEL,
         SHIELDHEALTH,
         MOVESPEED,
         FIRERATE,
+        BULLETSPEED,
+        SHIELDSPEED,
         GAMELENGTH,
+        ROUNDS,
         STARTGAME
     }
+
+    Dictionary<Presets, int> m_PresetDefault = new Dictionary<Presets, int>(), m_PresetSniper = new Dictionary<Presets, int>(), m_PresetTactical = new Dictionary<Presets, int>(),
+        m_PresetBulletHell = new Dictionary<Presets, int>();
+
+    private enum Presets
+    {
+        SHIELDHEALTH,
+        MOVESPEED,
+        FIREDELAY,
+        BULLETSPEED,
+        SHIELDROTSPEED
+    }
+
+    private enum SelectedPreset
+    {
+        DEFAULT,
+        SNIPER,
+        TACTICAL,
+        BULLET_HELL
+    }
+
 
     private enum LevelSelected
     {
@@ -62,6 +89,10 @@ public class MainMenuManager : MonoBehaviour {
 
     private LevelSelected m_LevelSelected;
 
+    private Presets m_Presets;
+
+    private SelectedPreset m_SelectedPreset;
+
     void Start()
     {
         DontDestroyOnLoad(transform);
@@ -70,6 +101,7 @@ public class MainMenuManager : MonoBehaviour {
         m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("PlayButton"));
         m_CurrentButton = SelectedButton.PLAYBUTTON;
         m_StartButton.interactable = false;
+        SetupPresetDictionary();
     }
 
     void Update()
@@ -100,6 +132,10 @@ public class MainMenuManager : MonoBehaviour {
 
     void UpdateMain()
     {
+        if (m_BGSphere.activeInHierarchy)
+        {
+            m_BGSphere.SetActive(false);
+        }
         switch (m_CurrentButton)
         {
             case SelectedButton.PLAYBUTTON:
@@ -144,14 +180,18 @@ public class MainMenuManager : MonoBehaviour {
 
     void UpdateMutators()
     {
+        if(!m_BGSphere.activeInHierarchy)
+        {
+            m_BGSphere.SetActive(true);
+        }
         switch (m_MutatorButtons)
         {
             case MutatorButtons.LEVELSELECT:
 
                 #region LEVELUPDOWNLEFTRIGHT
-                if (m_LevelSelect.GetComponent<Outline>().enabled == false)
+                if (m_LevelHighlight.GetComponent<Outline>().enabled == false)
                 {
-                    m_LevelSelect.GetComponent<Outline>().enabled = true;
+                    m_LevelHighlight.GetComponent<Outline>().enabled = true;
                 }
 
                 if(InputManager.ActiveDevice.LeftStickRight.WasPressed || InputManager.ActiveDevice.DPadRight.WasPressed)
@@ -175,12 +215,88 @@ public class MainMenuManager : MonoBehaviour {
 
                 if(InputManager.ActiveDevice.LeftStickDown.WasPressed || InputManager.ActiveDevice.DPadDown.WasPressed)
                 {
-                    m_LevelSelect.GetComponent<Outline>().enabled = false;
+                    m_LevelHighlight.GetComponent<Outline>().enabled = false;
                     m_MutatorButtons++;
                 }
                 #endregion
                 
                 break;
+            case MutatorButtons.PRESET:
+
+                #region PRESETUPDOWN
+                if (m_PresetSlider.transform.GetChild(0).GetComponent<Outline>().enabled == false)
+                {
+                    m_PresetSlider.transform.GetChild(0).GetComponent<Outline>().enabled = true;
+                }
+
+
+                if (InputManager.ActiveDevice.LeftStickDown.WasPressed || InputManager.ActiveDevice.DPadDown.WasPressed)
+                {
+                    m_PresetSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
+                    m_MutatorButtons++;
+                }
+                if (InputManager.ActiveDevice.LeftStickUp.WasPressed || InputManager.ActiveDevice.DPadUp.WasPressed)
+                {
+                    m_PresetSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
+                    m_MutatorButtons--;
+                }
+                #endregion
+
+                #region PRESETLEFTRIGHT
+                if (InputManager.ActiveDevice.LeftStickLeft.WasPressed || InputManager.ActiveDevice.DPadLeft.WasPressed)
+                {
+                    if (m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value > 1)
+                        m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value--;
+
+                }
+                else if (InputManager.ActiveDevice.LeftStickRight.WasPressed || InputManager.ActiveDevice.DPadRight.WasPressed)
+                {
+                    if (m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value < 4)
+                        m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value++;
+                }
+                #endregion
+
+                #region PRESETS
+                m_SelectedPreset = (SelectedPreset)m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value - 1;
+                switch (m_SelectedPreset)
+                {
+                    case SelectedPreset.DEFAULT:
+                        m_ShieldSlider.transform.GetChild(1).GetComponent<Slider>().value =       m_PresetDefault[Presets.SHIELDHEALTH];
+                        m_MoveSlider.transform.GetChild(1).GetComponent<Slider>().value =         m_PresetDefault[Presets.MOVESPEED];
+                        m_FireSlider.transform.GetChild(1).GetComponent<Slider>().value =         m_PresetDefault[Presets.FIREDELAY];
+                        m_BulletSlider.transform.GetChild(1).GetComponent<Slider>().value =       m_PresetDefault[Presets.BULLETSPEED];
+                        m_ShieldRotateSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetDefault[Presets.SHIELDROTSPEED];
+                        break;
+                    case SelectedPreset.SNIPER:
+                        m_ShieldSlider.transform.GetChild(1).GetComponent<Slider>().value =       m_PresetSniper[Presets.SHIELDHEALTH];
+                        m_MoveSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetSniper[Presets.MOVESPEED];
+                        m_FireSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetSniper[Presets.FIREDELAY];
+                        m_BulletSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetSniper[Presets.BULLETSPEED];
+                        m_ShieldRotateSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetSniper[Presets.SHIELDROTSPEED];
+                        break;
+
+                    case SelectedPreset.TACTICAL:
+                        m_ShieldSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetTactical[Presets.SHIELDHEALTH];
+                        m_MoveSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetTactical[Presets.MOVESPEED];
+                        m_FireSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetTactical[Presets.FIREDELAY];
+                        m_BulletSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetTactical[Presets.BULLETSPEED];
+                        m_ShieldRotateSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetTactical[Presets.SHIELDROTSPEED];
+                        break;
+
+                    case SelectedPreset.BULLET_HELL:
+                        m_ShieldSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetBulletHell[Presets.SHIELDHEALTH];
+                        m_MoveSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetBulletHell[Presets.MOVESPEED];
+                        m_FireSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetBulletHell[Presets.FIREDELAY];
+                        m_BulletSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetBulletHell[Presets.BULLETSPEED];
+                        m_ShieldRotateSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetBulletHell[Presets.SHIELDROTSPEED];
+                        break;
+
+                    default:
+                        break;
+                }
+                #endregion
+                break;
+
             case MutatorButtons.DYNAMICLEVEL:
 
                 #region DYNAMICUPDOWN
@@ -337,7 +453,7 @@ public class MainMenuManager : MonoBehaviour {
                     m_LengthSlider.transform.GetChild(0).GetComponent<Outline>().enabled = true;
                 }
 
-                if (InputManager.ActiveDevice.LeftStickDown.WasPressed && m_PlayersReady > 0 || InputManager.ActiveDevice.DPadDown.WasPressed && m_PlayersReady > 0)
+                if (InputManager.ActiveDevice.LeftStickDown.WasPressed || InputManager.ActiveDevice.DPadDown.WasPressed)
                 {
                     m_LengthSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
                     m_MutatorButtons++;
@@ -367,6 +483,124 @@ public class MainMenuManager : MonoBehaviour {
                 m_SelectedGameLength = (int)m_LengthSlider.transform.GetChild(1).GetComponent<Slider>().value;
 
                 break;
+
+            case MutatorButtons.BULLETSPEED:
+
+                #region BULLETUPDOWN
+                if (m_BulletSlider.transform.GetChild(0).GetComponent<Outline>().enabled == false)
+                {
+                    m_BulletSlider.transform.GetChild(0).GetComponent<Outline>().enabled = true;
+                }
+
+
+                if (InputManager.ActiveDevice.LeftStickDown.WasPressed || InputManager.ActiveDevice.DPadDown.WasPressed)
+                {
+                    m_BulletSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
+                    m_MutatorButtons++;
+                }
+                if (InputManager.ActiveDevice.LeftStickUp.WasPressed || InputManager.ActiveDevice.DPadUp.WasPressed)
+                {
+                    m_BulletSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
+                    m_MutatorButtons--;
+                }
+                #endregion
+
+                #region BULLETLEFTRIGHT
+                if (InputManager.ActiveDevice.LeftStickLeft.WasPressed || InputManager.ActiveDevice.DPadLeft.WasPressed)
+                {
+                    if (m_BulletSlider.transform.GetChild(1).GetComponent<Slider>().value > 1)
+                        m_BulletSlider.transform.GetChild(1).GetComponent<Slider>().value--;
+
+                }
+                else if (InputManager.ActiveDevice.LeftStickRight.WasPressed || InputManager.ActiveDevice.DPadRight.WasPressed)
+                {
+                    if (m_BulletSlider.transform.GetChild(1).GetComponent<Slider>().value < 5)
+                        m_BulletSlider.transform.GetChild(1).GetComponent<Slider>().value++;
+                }
+
+                #endregion
+
+                m_SelectedBulletSpeed = (int)m_BulletSlider.transform.GetChild(1).GetComponent<Slider>().value;
+                break;
+
+            case MutatorButtons.SHIELDSPEED:
+
+                #region SHIELDSPEEDUPDOWN
+                if (m_ShieldRotateSlider.transform.GetChild(0).GetComponent<Outline>().enabled == false)
+                {
+                    m_ShieldRotateSlider.transform.GetChild(0).GetComponent<Outline>().enabled = true;
+                }
+
+
+                if (InputManager.ActiveDevice.LeftStickDown.WasPressed || InputManager.ActiveDevice.DPadDown.WasPressed)
+                {
+                    m_ShieldRotateSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
+                    m_MutatorButtons++;
+                }
+                if (InputManager.ActiveDevice.LeftStickUp.WasPressed || InputManager.ActiveDevice.DPadUp.WasPressed)
+                {
+                    m_ShieldRotateSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
+                    m_MutatorButtons--;
+                }
+                #endregion
+
+                #region SHIELDSPEEDLEFTRIGHT
+                if (InputManager.ActiveDevice.LeftStickLeft.WasPressed || InputManager.ActiveDevice.DPadLeft.WasPressed)
+                {
+                    if (m_ShieldRotateSlider.transform.GetChild(1).GetComponent<Slider>().value > 1)
+                        m_ShieldRotateSlider.transform.GetChild(1).GetComponent<Slider>().value--;
+
+                }
+                else if (InputManager.ActiveDevice.LeftStickRight.WasPressed || InputManager.ActiveDevice.DPadRight.WasPressed)
+                {
+                    if (m_ShieldRotateSlider.transform.GetChild(1).GetComponent<Slider>().value < 5)
+                        m_ShieldRotateSlider.transform.GetChild(1).GetComponent<Slider>().value++;
+                }
+
+                #endregion
+
+                m_SelectedShieldRotateSpeed = (int)m_ShieldRotateSlider.transform.GetChild(1).GetComponent<Slider>().value;
+                break;
+
+            case MutatorButtons.ROUNDS:
+
+                #region ROUNDSUPDOWN
+                if (m_RoundSlider.transform.GetChild(0).GetComponent<Outline>().enabled == false)
+                {
+                    m_RoundSlider.transform.GetChild(0).GetComponent<Outline>().enabled = true;
+                }
+
+                if (InputManager.ActiveDevice.LeftStickDown.WasPressed && m_PlayersReady > 0 || InputManager.ActiveDevice.DPadDown.WasPressed && m_PlayersReady > 0)
+                {
+                    m_RoundSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
+                    m_MutatorButtons++;
+                }
+                if (InputManager.ActiveDevice.LeftStickUp.WasPressed || InputManager.ActiveDevice.DPadUp.WasPressed)
+                {
+                    m_RoundSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
+                    m_MutatorButtons--;
+                }
+                #endregion
+
+                #region ROUNDSLEFTRIGHT
+                if (InputManager.ActiveDevice.LeftStickLeft.WasPressed || InputManager.ActiveDevice.DPadLeft.WasPressed)
+                {
+                    if (m_RoundSlider.transform.GetChild(1).GetComponent<Slider>().value > 1)
+                        m_RoundSlider.transform.GetChild(1).GetComponent<Slider>().value--;
+
+                }
+                else if (InputManager.ActiveDevice.LeftStickRight.WasPressed || InputManager.ActiveDevice.DPadRight.WasPressed)
+                {
+                    if (m_RoundSlider.transform.GetChild(1).GetComponent<Slider>().value < 10)
+                        m_RoundSlider.transform.GetChild(1).GetComponent<Slider>().value++;
+                }
+
+                #endregion
+
+                m_SelectedRounds = (int)m_RoundSlider.transform.GetChild(1).GetComponent<Slider>().value;
+
+                break;
+
             case MutatorButtons.STARTGAME:
                 #region STARTUPDOWN
                 if (m_StartButton.interactable == false)
@@ -430,5 +664,40 @@ public class MainMenuManager : MonoBehaviour {
         }
 
         m_MenuScene = false;
+    }
+
+    private void SetupPresetDictionary()
+    {
+        #region DEFAULT
+        m_PresetDefault.Add(Presets.SHIELDHEALTH, 3);
+        m_PresetDefault.Add(Presets.MOVESPEED, 2);
+        m_PresetDefault.Add(Presets.FIREDELAY, 4);
+        m_PresetDefault.Add(Presets.BULLETSPEED, 3);
+        m_PresetDefault.Add(Presets.SHIELDROTSPEED, 2);
+        #endregion
+
+        #region SNIPER
+        m_PresetSniper.Add(Presets.SHIELDHEALTH, 1);
+        m_PresetSniper.Add(Presets.MOVESPEED, 1);
+        m_PresetSniper.Add(Presets.FIREDELAY, 10);
+        m_PresetSniper.Add(Presets.BULLETSPEED, 5);
+        m_PresetSniper.Add(Presets.SHIELDROTSPEED, 1);
+        #endregion
+
+        #region TACTICAL
+        m_PresetTactical.Add(Presets.SHIELDHEALTH, 1);
+        m_PresetTactical.Add(Presets.MOVESPEED, 2);
+        m_PresetTactical.Add(Presets.FIREDELAY, 10);
+        m_PresetTactical.Add(Presets.BULLETSPEED, 3);
+        m_PresetTactical.Add(Presets.SHIELDROTSPEED, 2);
+        #endregion
+
+        #region BULLET_HELL
+        m_PresetBulletHell.Add(Presets.SHIELDHEALTH, 5);
+        m_PresetBulletHell.Add(Presets.MOVESPEED, 2);
+        m_PresetBulletHell.Add(Presets.FIREDELAY, 1);
+        m_PresetBulletHell.Add(Presets.BULLETSPEED, 2);
+        m_PresetBulletHell.Add(Presets.SHIELDROTSPEED, 2);
+        #endregion
     }
 }

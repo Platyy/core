@@ -17,6 +17,8 @@ public class PlayerController : MonoBehaviour {
 
     public int m_ShootingAngles = 16;
 
+    public float m_ShieldRotationSpeed = 5f;
+
     public Renderer[] m_Renderer;
 
     // Public variables
@@ -189,12 +191,12 @@ public class PlayerController : MonoBehaviour {
 
         if (m_Device.GetControl(InputControlType.LeftBumper).IsPressed)
         {
-            m_Shields.transform.Rotate(0, -5, 0);
+            m_Shields.transform.Rotate(0, -m_ShieldRotationSpeed, 0);
         }
 
         if (m_Device.GetControl(InputControlType.RightBumper).IsPressed)
         {
-            m_Shields.transform.Rotate(0, 5, 0);
+            m_Shields.transform.Rotate(0, m_ShieldRotationSpeed, 0);
         }
         Rotation();
     }

@@ -1,11 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System;
 
 public class SliderText : MonoBehaviour {
 
     public Slider m_Slider;
     private Text m_Text;
+    public bool m_Preset = false;
+
+    private enum SelectedPreset
+    {
+        DEFAULT,
+        SNIPER,
+        TACTICAL,
+        BULLET_HELL
+    }
+
+    private SelectedPreset m_SelectedPreset;
 
     void Start()
     {
@@ -13,7 +25,15 @@ public class SliderText : MonoBehaviour {
     }
     void Update()
     {
-        m_Text.text = m_Slider.value.ToString();
+        if(!m_Preset)
+        {
+            m_Text.text = m_Slider.value.ToString();
+        }
+        else
+        {
+            m_Text.text = ((SelectedPreset)m_Slider.value - 1).ToString();
+        }
+
     }
 
 }
