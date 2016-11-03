@@ -34,7 +34,6 @@ public class LMS : MonoBehaviour {
     public bool m_RoundStarted = false;
 
     public Text m_TimeDisplay;
-    public GameObject m_Scores;
 
     public int[] m_PlayersAlive;
     public int[] m_PlayerKillsThisRound = new int[] { 0, 0, 0, 0 };
@@ -82,10 +81,12 @@ public class LMS : MonoBehaviour {
     {
         if(m_ScoreCounter == null)
         {
-            m_ScoreCounter = FindObjectOfType<ScoreCounter>();
+            this.m_ScoreCounter = FindObjectOfType<ScoreCounter>();
         }
 
         DontDestroyOnLoad(m_ScoreCounter);
+        //DontDestroyOnLoad(m_ScoreObject);
+
 
         m_ControllerManager = FindObjectOfType<PlayerControllerManager>();
         m_DevicesAssigned = m_MenuManager.m_PlayersReady;
@@ -96,14 +97,14 @@ public class LMS : MonoBehaviour {
         m_PlayersAlive = new int[m_MenuManager.m_PlayersReady];
         m_PlayerList = new GameObject[m_MenuManager.m_PlayersReady];
 
-        m_Scores.SetActive(false);
+        //m_Scores.SetActive(false);
         m_RemainingTime = m_MenuManager.m_SelectedGameLength * 60;
+
         for (int i = 0; i < m_PlayersAlive.Length; i++)
         {
             m_PlayersAlive[i] = 1;
         }
-
-
+        
         m_QuitCanvas.SetActive(false);
         Spawn();
 
@@ -206,7 +207,6 @@ public class LMS : MonoBehaviour {
             m_Mins = Mathf.Floor(m_RemainingTime / 60f);
             m_Secs = Mathf.Floor(m_RemainingTime % 60);
             m_TimeDisplay.text = m_Mins.ToString() + ":" + m_Secs.ToString();
-            
         }
 
         if(m_RemainingTime <= 0)
@@ -235,19 +235,19 @@ public class LMS : MonoBehaviour {
 
     void EndGame()
     {
-        m_Scores.SetActive(true);
-        m_RoundsRemaining = 0;
-        for (int i = 0; i < m_Scores.transform.childCount; i++)
-        {
-            if(i <= m_DevicesAssigned)
-            {
-                m_Scores.transform.GetChild(i).GetComponent<Text>().text = "Player " + i.ToString() + ": "+ CalculateScore(i).ToString();
-            }
-            else
-            {
-                m_Scores.transform.GetChild(i).gameObject.SetActive(false);
-            }
-        }
+        //m_Scores.SetActive(true);
+        //m_RoundsRemaining = 0;
+        //for (int i = 0; i < m_Scores.transform.childCount; i++)
+        //{
+        //    if(i <= m_DevicesAssigned)
+        //    {
+        //        m_Scores.transform.GetChild(i).GetComponent<Text>().text = "Player " + i.ToString() + ": "+ CalculateScore(i).ToString();
+        //    }
+        //    else
+        //    {
+        //        m_Scores.transform.GetChild(i).gameObject.SetActive(false);
+        //    }
+        //}
         
         if (Input.GetButtonDown("BackButton"))
         {
