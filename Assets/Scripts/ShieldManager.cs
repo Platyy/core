@@ -7,6 +7,7 @@ public class ShieldManager : MonoBehaviour {
 
     private PlayerController m_PC;
     public ParticleSystem m_HitParticle;
+    public ParticleSystem m_DestroyParticle;
 
     public int m_HitsToTake;
 
@@ -31,6 +32,8 @@ public class ShieldManager : MonoBehaviour {
             }
             if(m_HitsToTake == 0)
             {
+                ParticleSystem _d = (ParticleSystem)Instantiate(m_DestroyParticle, transform.position, transform.rotation);
+                _d.startColor = m_PC.m_PlayerColor;
                 Destroy(gameObject);
             }
         }

@@ -60,6 +60,8 @@ public class LMS : MonoBehaviour {
 
     private MainMenuManager m_MenuManager;
 
+    private bool m_RoundEnding = false;
+
     private enum SelectedButton
     {
         OKBUTTON,
@@ -172,12 +174,14 @@ public class LMS : MonoBehaviour {
 
     IEnumerator FinalKill()
     {
+        m_RoundEnding = true;
         Time.timeScale = 0.5f;
         yield return new WaitForSeconds(1);
         Time.timeScale = Mathf.Lerp(0.5f, 1.0f, 1.0f);
         yield return new WaitForSeconds(1);
         LastAliveScore();
         EndRound();
+        m_RoundEnding = false;
     }
 
     void LastAliveScore()
@@ -249,7 +253,7 @@ public class LMS : MonoBehaviour {
         //    }
         //}
         
-        if (Input.GetButtonDown("BackButton"))
+        if (Input.GetButtonDown("BackButton") && !m_RoundEnding)
         {
             SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
         }
@@ -337,45 +341,48 @@ public class LMS : MonoBehaviour {
 
     void ManageQuitCanvas()
     {
-        if(Input.GetButtonDown("BackButton"))
+        if(!m_RoundEnding)
         {
-            m_QuitCanvas.SetActive(true);
-            m_Button = SelectedButton.OKBUTTON;
-            m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("OK"));
-        }
-
-        if(m_QuitCanvas.activeSelf && m_QuitCanvas != null)
-        {
-            switch (m_Button)
+            if(Input.GetButtonDown("BackButton"))
             {
-                case SelectedButton.OKBUTTON:
-                    if(InputManager.ActiveDevice.Action1.WasPressed)
-                    {
-                        Destroy(m_MenuManager.gameObject);
-                        Destroy(m_ScoreCounter.gameObject);
-                        SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
-                    }
-                    break;
-
-                case SelectedButton.CANCELBUTTON:
-                    if (InputManager.ActiveDevice.Action1.WasPressed)
-                    {
-                        m_QuitCanvas.SetActive(false);
-                    }
-                    break;
-            }
-
-            if(m_Button == SelectedButton.OKBUTTON && InputManager.ActiveDevice.DPadRight.WasPressed)
-            {
-                m_Button = SelectedButton.CANCELBUTTON;
-                m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("Cancel"));
-            }
-            else if(m_Button == SelectedButton.CANCELBUTTON && InputManager.ActiveDevice.DPadLeft.WasPressed)
-            {
+                m_QuitCanvas.SetActive(true);
                 m_Button = SelectedButton.OKBUTTON;
                 m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("OK"));
             }
 
+            if(m_QuitCanvas.activeSelf && m_QuitCanvas != null)
+            {
+                switch (m_Button)
+                {
+                    case SelectedButton.OKBUTTON:
+                        if(InputManager.ActiveDevice.Action1.WasPressed)
+                        {
+                            Destroy(m_MenuManager.gameObject);
+                            Destroy(m_ScoreCounter.gameObject);
+                            SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
+                        }
+                        break;
+
+                    case SelectedButton.CANCELBUTTON:
+                        if (InputManager.ActiveDevice.Action1.WasPressed)
+                        {
+                            m_QuitCanvas.SetActive(false);
+                        }
+                        break;
+                }
+
+                if(m_Button == SelectedButton.OKBUTTON && InputManager.ActiveDevice.DPadRight.WasPressed)
+                {
+                    m_Button = SelectedButton.CANCELBUTTON;
+                    m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("Cancel"));
+                }
+                else if(m_Button == SelectedButton.CANCELBUTTON && InputManager.ActiveDevice.DPadLeft.WasPressed)
+                {
+                    m_Button = SelectedButton.OKBUTTON;
+                    m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("OK"));
+                }
+
+            }
         }
     }
 

@@ -11,7 +11,7 @@ public class MainMenuManager : MonoBehaviour {
 
     public GameObject m_MenuCanvas, m_MutatorCanvas;
 
-    public GameObject m_LevelSelect, m_DynamicToggle, m_ShieldSlider, m_MoveSlider, m_FireSlider, 
+    public GameObject m_LevelSelect, m_ShieldSlider, m_MoveSlider, m_FireSlider, 
         m_LengthSlider, m_LevelHighlight, m_BulletSlider, m_ShieldRotateSlider, m_RoundSlider, m_PresetSlider;
 
     public int m_SelectedShieldHealth, m_SelectedMoveSpeed, m_SelectedFireRate, m_SelectedGameLength, m_SelectedBulletSpeed, m_SelectedShieldRotateSpeed, m_SelectedRounds;
@@ -45,7 +45,6 @@ public class MainMenuManager : MonoBehaviour {
     {
         LEVELSELECT,
         PRESET,
-        DYNAMICLEVEL,
         SHIELDHEALTH,
         MOVESPEED,
         FIRERATE,
@@ -301,39 +300,6 @@ public class MainMenuManager : MonoBehaviour {
                 #endregion
                 break;
 
-            case MutatorButtons.DYNAMICLEVEL:
-
-                #region DYNAMICUPDOWN
-                if (m_DynamicToggle.transform.GetChild(0).GetComponent<Outline>().enabled == false)
-                {
-                    m_DynamicToggle.transform.GetChild(0).GetComponent<Outline>().enabled = true;
-                }
-
-
-                if (InputManager.ActiveDevice.LeftStickDown.WasPressed || InputManager.ActiveDevice.DPadDown.WasPressed)
-                {
-                    m_DynamicToggle.transform.GetChild(0).GetComponent<Outline>().enabled = false;
-                    m_MutatorButtons++;
-                }
-                if (InputManager.ActiveDevice.LeftStickUp.WasPressed || InputManager.ActiveDevice.DPadUp.WasPressed)
-                {
-                    m_DynamicToggle.transform.GetChild(0).GetComponent<Outline>().enabled = false;
-                    m_MutatorButtons--;
-                }
-                #endregion
-
-                #region DYNAMICTOGGLE
-                if(InputManager.ActiveDevice.Action1.WasPressed)
-                {
-                    if (m_DynamicToggle.transform.GetChild(1).GetComponent<Toggle>().isOn)
-                    {
-                        m_DynamicToggle.transform.GetChild(1).GetComponent<Toggle>().isOn = false;
-                    }
-                    else m_DynamicToggle.transform.GetChild(1).GetComponent<Toggle>().isOn = true;
-                }
-                #endregion
-
-                break;
             case MutatorButtons.SHIELDHEALTH:
 
                 #region SHIELDUPDOWN
@@ -658,14 +624,7 @@ public class MainMenuManager : MonoBehaviour {
 
     public void LoadLevel()
     {
-        if (m_DynamicToggle.transform.GetChild(1).GetComponent<Toggle>().isOn)
-        {
-            SceneManager.LoadScene(m_LevelSelected.ToString() + "Dynamic", LoadSceneMode.Single);
-        }
-        else
-        {
-            SceneManager.LoadScene(m_LevelSelected.ToString(), LoadSceneMode.Single);
-        }
+        SceneManager.LoadScene(m_LevelSelected.ToString(), LoadSceneMode.Single);
 
         m_MenuScene = false;
     }
