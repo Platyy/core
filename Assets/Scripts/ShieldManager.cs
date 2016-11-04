@@ -7,13 +7,16 @@ public class ShieldManager : MonoBehaviour {
 
     private PlayerController m_PC;
     public ParticleSystem m_HitParticle;
-    public ParticleSystem m_DestroyParticle;
+
+    private ShieldDestroy m_ShieldDestroy;
 
     public int m_HitsToTake;
 
     void Start()
     {
         m_PC = transform.GetComponentInParent<PlayerController>();
+        m_ShieldDestroy = transform.GetComponentInParent<ShieldDestroy>();
+        
     }
 
 
@@ -32,8 +35,9 @@ public class ShieldManager : MonoBehaviour {
             }
             if(m_HitsToTake == 0)
             {
-                ParticleSystem _d = (ParticleSystem)Instantiate(m_DestroyParticle, transform.position, transform.rotation);
-                _d.startColor = m_PC.m_PlayerColor;
+                m_ShieldDestroy.m_Forward = transform.rotation;
+                m_ShieldDestroy.m_PlayerColor = m_PC.m_PlayerColor;
+                m_ShieldDestroy.m_Play = true;
                 Destroy(gameObject);
             }
         }
