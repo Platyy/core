@@ -289,4 +289,10 @@ public class PlayerController : MonoBehaviour {
         }
         Debug.DrawLine(_ray.origin, _hit.point, Color.red);
     }
+
+    public void DestroyShields()
+    {
+        Destroy(m_Shields);
+    }
+
 }

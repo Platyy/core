@@ -14,7 +14,7 @@ public class MainMenuManager : MonoBehaviour {
     public GameObject m_LevelSelect, m_ShieldSlider, m_MoveSlider, m_FireSlider, 
         m_LengthSlider, m_LevelHighlight, m_BulletSlider, m_ShieldRotateSlider, m_RoundSlider, m_PresetSlider;
 
-    public int m_SelectedShieldHealth, m_SelectedMoveSpeed, m_SelectedFireRate, m_SelectedGameLength, m_SelectedBulletSpeed, m_SelectedShieldRotateSpeed, m_SelectedRounds;
+    public int m_SelectedShieldHealth, m_SelectedMoveSpeed, m_SelectedFireRate, m_SelectedGameLength, m_SelectedBulletSpeed, m_SelectedShieldRotateSpeed, m_SelectedRounds, m_SuddenDeath;
     public int m_PlayersReady = 0;
     public InputDevice[] m_MenuDevices;
 
@@ -28,7 +28,6 @@ public class MainMenuManager : MonoBehaviour {
     public Button m_StartButton;
 
     private GameObject m_EventSystem;
-
 
     private bool m_Mutators = false;
 
@@ -56,7 +55,7 @@ public class MainMenuManager : MonoBehaviour {
     }
 
     Dictionary<Presets, int> m_PresetDefault = new Dictionary<Presets, int>(), m_PresetSniper = new Dictionary<Presets, int>(), m_PresetTactical = new Dictionary<Presets, int>(),
-        m_PresetBulletHell = new Dictionary<Presets, int>();
+        m_PresetBulletHell = new Dictionary<Presets, int>(), m_PresetSuddenDeath = new Dictionary<Presets, int>();
 
     private enum Presets
     {
@@ -64,7 +63,8 @@ public class MainMenuManager : MonoBehaviour {
         MOVESPEED,
         FIREDELAY,
         BULLETSPEED,
-        SHIELDROTSPEED
+        SHIELDROTSPEED,
+        NOSHIELDS
     }
 
     private enum SelectedPreset
@@ -72,7 +72,8 @@ public class MainMenuManager : MonoBehaviour {
         DEFAULT,
         SNIPER,
         TACTICAL,
-        BULLET_HELL
+        BULLET_HELL,
+        SUDDEN_DEATH
     }
 
 
@@ -123,7 +124,6 @@ public class MainMenuManager : MonoBehaviour {
 
     public void ClickPlay()
     {
-        
         m_MenuCanvas.SetActive(false);
         m_MutatorCanvas.SetActive(true);
         m_MutatorButtons = MutatorButtons.LEVELSELECT;
@@ -254,8 +254,26 @@ public class MainMenuManager : MonoBehaviour {
                 }
                 else if (InputManager.ActiveDevice.LeftStickRight.WasPressed || InputManager.ActiveDevice.DPadRight.WasPressed)
                 {
-                    if (m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value < 4)
+                    if (m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value < 5)
+                    {
                         m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value++;
+                        if(m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value == 5) // On Sudden Death
+                        {
+                            int _val;
+                            if (m_PresetSuddenDeath.TryGetValue(Presets.NOSHIELDS, out _val))
+                            {
+                                m_PresetSuddenDeath[Presets.NOSHIELDS] = 1;
+                            }
+                        }
+                        else
+                        {
+                            int _val;
+                            if (m_PresetSuddenDeath.TryGetValue(Presets.NOSHIELDS, out _val))
+                            {
+                                m_PresetSuddenDeath[Presets.NOSHIELDS] = 0;
+                            }
+                        }
+                    }
                 }
                 #endregion
 
@@ -292,6 +310,13 @@ public class MainMenuManager : MonoBehaviour {
                         m_FireSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetBulletHell[Presets.FIREDELAY];
                         m_BulletSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetBulletHell[Presets.BULLETSPEED];
                         m_ShieldRotateSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetBulletHell[Presets.SHIELDROTSPEED];
+                        break;
+                    case SelectedPreset.SUDDEN_DEATH:
+                        m_ShieldSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetSuddenDeath[Presets.SHIELDHEALTH];
+                        m_MoveSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetSuddenDeath[Presets.MOVESPEED];
+                        m_FireSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetSuddenDeath[Presets.FIREDELAY];
+                        m_BulletSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetSuddenDeath[Presets.BULLETSPEED];
+                        m_ShieldRotateSlider.transform.GetChild(1).GetComponent<Slider>().value = m_PresetSuddenDeath[Presets.SHIELDROTSPEED];
                         break;
 
                     default:
@@ -579,6 +604,7 @@ public class MainMenuManager : MonoBehaviour {
                     
                 }
                 m_StartButton.Select();
+
                 if (InputManager.ActiveDevice.LeftStickUp.WasPressed || InputManager.ActiveDevice.DPadUp.WasPressed)
                 {
                     m_LengthSlider.transform.GetChild(0).GetComponent<Outline>().enabled = false;
@@ -624,8 +650,12 @@ public class MainMenuManager : MonoBehaviour {
 
     public void LoadLevel()
     {
+        int _val;
+        if (m_PresetSuddenDeath.TryGetValue(Presets.NOSHIELDS, out _val))
+        {
+            m_SuddenDeath = _val;
+        }
         SceneManager.LoadScene(m_LevelSelected.ToString(), LoadSceneMode.Single);
-
         m_MenuScene = false;
     }
 
@@ -637,6 +667,8 @@ public class MainMenuManager : MonoBehaviour {
         m_PresetDefault.Add(Presets.FIREDELAY, 4);
         m_PresetDefault.Add(Presets.BULLETSPEED, 3);
         m_PresetDefault.Add(Presets.SHIELDROTSPEED, 2);
+        m_PresetDefault.Add(Presets.NOSHIELDS, 0);
+
         #endregion
 
         #region SNIPER
@@ -645,6 +677,7 @@ public class MainMenuManager : MonoBehaviour {
         m_PresetSniper.Add(Presets.FIREDELAY, 10);
         m_PresetSniper.Add(Presets.BULLETSPEED, 5);
         m_PresetSniper.Add(Presets.SHIELDROTSPEED, 1);
+        m_PresetSniper.Add(Presets.NOSHIELDS, 0);
         #endregion
 
         #region TACTICAL
@@ -653,6 +686,7 @@ public class MainMenuManager : MonoBehaviour {
         m_PresetTactical.Add(Presets.FIREDELAY, 10);
         m_PresetTactical.Add(Presets.BULLETSPEED, 3);
         m_PresetTactical.Add(Presets.SHIELDROTSPEED, 2);
+        m_PresetTactical.Add(Presets.NOSHIELDS, 0);
         #endregion
 
         #region BULLET_HELL
@@ -661,6 +695,17 @@ public class MainMenuManager : MonoBehaviour {
         m_PresetBulletHell.Add(Presets.FIREDELAY, 1);
         m_PresetBulletHell.Add(Presets.BULLETSPEED, 2);
         m_PresetBulletHell.Add(Presets.SHIELDROTSPEED, 2);
+        m_PresetBulletHell.Add(Presets.NOSHIELDS, 0);
+        #endregion
+
+        #region SUDDEN_DEATH
+        m_PresetSuddenDeath.Add(Presets.SHIELDHEALTH, 1);
+        m_PresetSuddenDeath.Add(Presets.MOVESPEED, 2);
+        m_PresetSuddenDeath.Add(Presets.FIREDELAY, 1);
+        m_PresetSuddenDeath.Add(Presets.BULLETSPEED, 2);
+        m_PresetSuddenDeath.Add(Presets.SHIELDROTSPEED, 2);
+        m_PresetSuddenDeath.Add(Presets.NOSHIELDS, 0);
+
         #endregion
     }
 }

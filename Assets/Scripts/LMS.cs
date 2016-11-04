@@ -62,6 +62,8 @@ public class LMS : MonoBehaviour {
 
     private bool m_RoundEnding = false;
 
+    public bool m_SuddenDeath = false;
+
     private enum SelectedButton
     {
         OKBUTTON,
@@ -292,6 +294,11 @@ public class LMS : MonoBehaviour {
             _pc.m_BulletSpeed = _pc.m_BulletSpeed * m_MenuManager.m_SelectedBulletSpeed;
             _pc.m_ShieldRotationSpeed = _pc.m_ShieldRotationSpeed * m_MenuManager.m_SelectedShieldRotateSpeed;
 
+            if(m_SuddenDeath)
+            {
+                _pc.DestroyShields();
+            }
+
             m_InstantiatedPlayers.Add(_go);
             m_PlayerList[i] = _go;
             _pc.m_PlayerID = i;
@@ -327,6 +334,11 @@ public class LMS : MonoBehaviour {
             _pc.m_BulletSpeed = _pc.m_BulletSpeed * m_MenuManager.m_SelectedBulletSpeed;
             _pc.m_ShieldRotationSpeed = _pc.m_ShieldRotationSpeed * m_MenuManager.m_SelectedShieldRotateSpeed;
             _pc.m_PlayerID = i;
+
+            if (m_MenuManager.m_SuddenDeath == 1)
+            {
+                _pc.DestroyShields();
+            }
 
             _pc.m_Renderer = _go.GetComponentsInChildren<Renderer>();
             for (int j = 0; j < _pc.m_Renderer.Length; j++)
