@@ -14,7 +14,8 @@ public class SliderText : MonoBehaviour {
         DEFAULT,
         SNIPER,
         TACTICAL,
-        BULLET_HELL
+        BULLET_HELL,
+        SUDDEN_DEATH
     }
 
     private SelectedPreset m_SelectedPreset;

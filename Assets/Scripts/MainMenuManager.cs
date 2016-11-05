@@ -701,7 +701,7 @@ public class MainMenuManager : MonoBehaviour {
         #region SUDDEN_DEATH
         m_PresetSuddenDeath.Add(Presets.SHIELDHEALTH, 1);
         m_PresetSuddenDeath.Add(Presets.MOVESPEED, 2);
-        m_PresetSuddenDeath.Add(Presets.FIREDELAY, 1);
+        m_PresetSuddenDeath.Add(Presets.FIREDELAY, 5);
         m_PresetSuddenDeath.Add(Presets.BULLETSPEED, 2);
         m_PresetSuddenDeath.Add(Presets.SHIELDROTSPEED, 2);
         m_PresetSuddenDeath.Add(Presets.NOSHIELDS, 0);
