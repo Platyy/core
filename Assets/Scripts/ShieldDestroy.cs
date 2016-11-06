@@ -18,7 +18,7 @@ public class ShieldDestroy : MonoBehaviour {
 
     public void PlayDeath()
     {
-        m_Forward.eulerAngles = new Vector3(m_Forward.eulerAngles.x, m_Forward.eulerAngles.y - 90, m_Forward.eulerAngles.z);
+        m_Forward.eulerAngles = new Vector3(m_Forward.eulerAngles.x, m_Forward.eulerAngles.y, m_Forward.eulerAngles.z);
         var _go = (ParticleSystem)Instantiate(m_ShieldDestroy, new Vector3(transform.position.x, transform.position.y + 1.5f, transform.position.z), m_Forward);
         //_ps.startColor = m_PlayerColor;
         _go.Play();
