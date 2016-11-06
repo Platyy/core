@@ -6,7 +6,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public class LMS : MonoBehaviour {
+public class LMS : MonoBehaviour
+{
 
     public int m_Rounds = 3;
     private int m_RoundsRemaining = 3;
@@ -23,6 +24,7 @@ public class LMS : MonoBehaviour {
 
     public ParticleSystem m_ExplosionParticle;
     public ParticleSystem m_HitParticle;
+    public ParticleSystem m_SpawnParticle;
 
     public Color[] m_PlayerColors = new Color[4] { Color.cyan, new Color(1.0f, 0.5f, 0), Color.magenta, Color.green };
 
@@ -33,7 +35,7 @@ public class LMS : MonoBehaviour {
 
     public bool m_RoundStarted = false;
 
-    public Text m_TimeDisplay;
+    public Text m_TimeDisplay, m_CountdownText;
 
     public int[] m_PlayersAlive;
     public int[] m_PlayerKillsThisRound = new int[] { 0, 0, 0, 0 };
@@ -64,6 +66,8 @@ public class LMS : MonoBehaviour {
 
     public bool m_SuddenDeath = false;
 
+    public float m_Countdown = 5f;
+
     private enum SelectedButton
     {
         OKBUTTON,
@@ -75,7 +79,7 @@ public class LMS : MonoBehaviour {
     void Awake()
     {
         m_MenuManager = FindObjectOfType<MainMenuManager>();
-        if(m_MenuManager == null)
+        if (m_MenuManager == null)
         {
             Debug.LogError("Couldn't find a menumanager");
         }
@@ -83,7 +87,7 @@ public class LMS : MonoBehaviour {
 
     public void Start()
     {
-        if(m_ScoreCounter == null)
+        if (m_ScoreCounter == null)
         {
             this.m_ScoreCounter = FindObjectOfType<ScoreCounter>();
         }
@@ -108,7 +112,7 @@ public class LMS : MonoBehaviour {
         {
             m_PlayersAlive[i] = 1;
         }
-        
+
         m_QuitCanvas.SetActive(false);
         Spawn();
 
@@ -121,9 +125,7 @@ public class LMS : MonoBehaviour {
 
     public void Update()
     {
-        //Debug.Log(m_PlayersAlive[0] + " " + m_PlayersAlive[1]);
-
-        if (Input.GetButtonDown("StartButton") && m_NewGame)
+        if (PlayCountdown() && m_NewGame)
         {
             m_RoundStarted = true;
 
@@ -131,11 +133,6 @@ public class LMS : MonoBehaviour {
             GetControllers();
         }
 
-        if (Input.GetButtonDown("StartButton"))
-        {
-            m_RoundStarted = true;
-            GetControllers();
-        }
         ManageTime();
         ManageQuitCanvas();
     }
@@ -161,7 +158,7 @@ public class LMS : MonoBehaviour {
         for (int i = 0; i < m_DevicesAssigned; i++)
         {
             StartCoroutine(DeathVibration(m_InputDevices[i]));
-            if(m_PlayersAlive[i] == 0)
+            if (m_PlayersAlive[i] == 0)
             {
                 m_CurrentDead++;
             }
@@ -192,14 +189,14 @@ public class LMS : MonoBehaviour {
         int _player = -1;
         for (int i = 0; i < m_PlayersAlive.Length; i++)
         {
-            if(m_PlayersAlive[i] == 1)
+            if (m_PlayersAlive[i] == 1)
             {
                 _count++;
                 _player = i;
                 break;
             }
         }
-        if(_count == 1)
+        if (_count == 1)
         {
             m_ScoreCounter.m_PlayerScores[_player] += 1;
         }
@@ -207,7 +204,7 @@ public class LMS : MonoBehaviour {
 
     void ManageTime()
     {
-        if(m_RoundStarted)
+        if (m_RoundStarted)
         {
             m_RemainingTime -= Time.deltaTime;
             m_Mins = Mathf.Floor(m_RemainingTime / 60f);
@@ -215,7 +212,7 @@ public class LMS : MonoBehaviour {
             m_TimeDisplay.text = m_Mins.ToString() + ":" + m_Secs.ToString();
         }
 
-        if(m_RemainingTime <= 0)
+        if (m_RemainingTime <= 0)
         {
             EndRound();
         }
@@ -254,7 +251,7 @@ public class LMS : MonoBehaviour {
         //        m_Scores.transform.GetChild(i).gameObject.SetActive(false);
         //    }
         //}
-        
+
         if (Input.GetButtonDown("BackButton") && !m_RoundEnding)
         {
             SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
@@ -294,7 +291,7 @@ public class LMS : MonoBehaviour {
             _pc.m_BulletSpeed = _pc.m_BulletSpeed * m_MenuManager.m_SelectedBulletSpeed;
             _pc.m_ShieldRotationSpeed = _pc.m_ShieldRotationSpeed * m_MenuManager.m_SelectedShieldRotateSpeed;
 
-            if(m_SuddenDeath)
+            if (m_SuddenDeath)
             {
                 _pc.DestroyShields();
             }
@@ -348,26 +345,28 @@ public class LMS : MonoBehaviour {
                 _pc.m_PlayerColor = m_PlayerColors[i];
             }
             m_PlayersAlive[i] = 1;
+            _go.SetActive(false);
+            StartCoroutine(SpawnParticle(_go, m_PlayerColors[i]));
         }
     }
 
     void ManageQuitCanvas()
     {
-        if(!m_RoundEnding)
+        if (!m_RoundEnding)
         {
-            if(Input.GetButtonDown("BackButton"))
+            if (Input.GetButtonDown("BackButton"))
             {
                 m_QuitCanvas.SetActive(true);
                 m_Button = SelectedButton.OKBUTTON;
                 m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("OK"));
             }
 
-            if(m_QuitCanvas.activeSelf && m_QuitCanvas != null)
+            if (m_QuitCanvas.activeSelf && m_QuitCanvas != null)
             {
                 switch (m_Button)
                 {
                     case SelectedButton.OKBUTTON:
-                        if(InputManager.ActiveDevice.Action1.WasPressed)
+                        if (InputManager.ActiveDevice.Action1.WasPressed)
                         {
                             Destroy(m_MenuManager.gameObject);
                             Destroy(m_ScoreCounter.gameObject);
@@ -383,12 +382,12 @@ public class LMS : MonoBehaviour {
                         break;
                 }
 
-                if(m_Button == SelectedButton.OKBUTTON && InputManager.ActiveDevice.DPadRight.WasPressed)
+                if (m_Button == SelectedButton.OKBUTTON && InputManager.ActiveDevice.DPadRight.WasPressed)
                 {
                     m_Button = SelectedButton.CANCELBUTTON;
                     m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("Cancel"));
                 }
-                else if(m_Button == SelectedButton.CANCELBUTTON && InputManager.ActiveDevice.DPadLeft.WasPressed)
+                else if (m_Button == SelectedButton.CANCELBUTTON && InputManager.ActiveDevice.DPadLeft.WasPressed)
                 {
                     m_Button = SelectedButton.OKBUTTON;
                     m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("OK"));
@@ -411,6 +410,40 @@ public class LMS : MonoBehaviour {
         _go.GetComponent<Renderer>().material.SetColor("_EmissionColor", _color);
         _go.Play();
         Destroy(_go, 2f);
+    }
+
+    public void PlaySpawn(GameObject _player, Color _color)
+    {
+        var _go = (ParticleSystem)Instantiate(m_SpawnParticle, _player.transform.position, Quaternion.Euler(new Vector3(-90, 0, 180)));
+        _go.GetComponent<Renderer>().material.SetColor("_EmissionColor", _color);
+        _go.Play();
+        Destroy(_go, 3f);
+    }
+
+    IEnumerator SpawnParticle(GameObject _player, Color _color)
+    {
+        PlaySpawn(_player, _color);
+        yield return new WaitForSeconds(1.5f);
+        _player.SetActive(true);
+    }
+
+    public bool PlayCountdown()
+    {
+        m_Countdown -= Time.deltaTime;
+        if(m_Countdown <= 2)
+        {
+            m_CountdownText.text = "START";
+            if(m_Countdown <= 1)
+            {
+                m_CountdownText.gameObject.SetActive(false);
+                return true;
+            }
+        }
+        else if(m_Countdown >= 2)
+        {
+            m_CountdownText.text = Mathf.Floor(m_Countdown - 1.0f % 60).ToString();
+        }
+        return false;
     }
 
 }
