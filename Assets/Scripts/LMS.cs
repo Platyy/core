@@ -68,6 +68,9 @@ public class LMS : MonoBehaviour
 
     public float m_Countdown = 5f;
 
+    public AudioSource m_RoundStart;
+    public AudioSource m_DeathSound;
+
     private enum SelectedButton
     {
         OKBUTTON,
@@ -128,7 +131,7 @@ public class LMS : MonoBehaviour
         if (PlayCountdown() && m_NewGame)
         {
             m_RoundStarted = true;
-
+            m_RoundStart.Play();
             m_NewGame = false;
             GetControllers();
         }
@@ -370,6 +373,7 @@ public class LMS : MonoBehaviour
                         {
                             Destroy(m_MenuManager.gameObject);
                             Destroy(m_ScoreCounter.gameObject);
+                            Destroy(FindObjectOfType<MusicManager>().gameObject);
                             SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
                         }
                         break;
@@ -409,6 +413,7 @@ public class LMS : MonoBehaviour
         var _go = (ParticleSystem)Instantiate(m_ExplosionParticle, _player.transform.position, Quaternion.identity);
         _go.GetComponent<Renderer>().material.SetColor("_EmissionColor", _color);
         _go.Play();
+        m_DeathSound.Play();
         Destroy(_go, 2f);
     }
 
@@ -430,6 +435,8 @@ public class LMS : MonoBehaviour
     public bool PlayCountdown()
     {
         m_Countdown -= Time.deltaTime;
+        
+        
         if(m_Countdown <= 2)
         {
             m_CountdownText.text = "START";
@@ -445,5 +452,6 @@ public class LMS : MonoBehaviour
         }
         return false;
     }
+
 
 }

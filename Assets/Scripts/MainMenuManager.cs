@@ -249,13 +249,17 @@ public class MainMenuManager : MonoBehaviour {
                 if (InputManager.ActiveDevice.LeftStickLeft.WasPressed || InputManager.ActiveDevice.DPadLeft.WasPressed)
                 {
                     if (m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value > 1)
+                    {
                         m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value--;
+                        m_PresetSuddenDeath[Presets.NOSHIELDS] = 0;
+                    }
 
                 }
                 else if (InputManager.ActiveDevice.LeftStickRight.WasPressed || InputManager.ActiveDevice.DPadRight.WasPressed)
                 {
                     if (m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value < 5)
                     {
+                        m_PresetSuddenDeath[Presets.NOSHIELDS] = 0;
                         m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value++;
                         if(m_PresetSlider.transform.GetChild(1).GetComponent<Slider>().value == 5) // On Sudden Death
                         {
@@ -267,11 +271,7 @@ public class MainMenuManager : MonoBehaviour {
                         }
                         else
                         {
-                            int _val;
-                            if (m_PresetSuddenDeath.TryGetValue(Presets.NOSHIELDS, out _val))
-                            {
-                                m_PresetSuddenDeath[Presets.NOSHIELDS] = 0;
-                            }
+                            m_PresetSuddenDeath[Presets.NOSHIELDS] = 0;
                         }
                     }
                 }

@@ -6,12 +6,13 @@ public class MusicManager : MonoBehaviour {
 
     private enum CurrentlyPlaying
     {
+        NOTRACK = -1,
         TRACK1 = 0,
         TRACK2 = 1,
         TRACK3 = 2
     }
 
-    private CurrentlyPlaying m_CurrentlyPlaying;
+    private CurrentlyPlaying m_CurrentlyPlaying = CurrentlyPlaying.NOTRACK;
 
     public AudioSource m_BGM1, m_BGM2, m_BGM3;
 
@@ -19,17 +20,22 @@ public class MusicManager : MonoBehaviour {
     {
         DontDestroyOnLoad(gameObject);
 
-        int _r = Random.Range(0, 2);
-        if (_r == 0)
+        if (m_CurrentlyPlaying == CurrentlyPlaying.NOTRACK)
         {
-            m_BGM1.Play();
-            m_CurrentlyPlaying = CurrentlyPlaying.TRACK1;
+            int _r = Random.Range(0, 2);
+            if (_r == 0)
+            {
+                m_BGM1.Play();
+                m_CurrentlyPlaying = CurrentlyPlaying.TRACK1;
+            }
+            else
+            {
+                m_BGM2.Play();
+                m_CurrentlyPlaying = CurrentlyPlaying.TRACK2;
+            }
+
         }
-        else
-        {
-            m_BGM2.Play();
-            m_CurrentlyPlaying = CurrentlyPlaying.TRACK2;
-        }
+
     }
 
 
