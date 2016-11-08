@@ -26,7 +26,7 @@ public class LMS : MonoBehaviour
     public ParticleSystem m_HitParticle;
     public ParticleSystem m_SpawnParticle;
 
-    public Color[] m_PlayerColors = new Color[4] { Color.cyan, new Color(1.0f, 0.5f, 0), Color.magenta, Color.green };
+    [ColorUsage(true, true, 2.0f, 2.0f, .5f, 3.0f)] public Color[] m_PlayerColors = new Color[4] { Color.cyan, new Color(1.0f, 0.5f, 0), Color.magenta, Color.green };
 
     private InputDevice[] m_InputDevicesUsed = new InputDevice[4];
 
@@ -411,8 +411,10 @@ public class LMS : MonoBehaviour
     public void PlayDeath(GameObject _player, Color _color)
     {
         var _go = (ParticleSystem)Instantiate(m_ExplosionParticle, _player.transform.position, Quaternion.identity);
-        _go.GetComponent<Renderer>().material.SetColor("_EmissionColor", _color);
+        _go.GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(_color.r * 2, _color.g * 2, _color.b * 2));
         _go.Play();
+        var _goChild = _go.transform.GetChild(0);
+        _goChild.GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(_color.r * 2, _color.g * 2, _color.b * 2));
         m_DeathSound.Play();
         Destroy(_go, 2f);
     }
@@ -420,7 +422,7 @@ public class LMS : MonoBehaviour
     public void PlaySpawn(GameObject _player, Color _color)
     {
         var _go = (ParticleSystem)Instantiate(m_SpawnParticle, _player.transform.position, Quaternion.Euler(new Vector3(-90, 0, 180)));
-        _go.GetComponent<Renderer>().material.SetColor("_EmissionColor", _color);
+        _go.GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(_color.r * 2, _color.g * 2, _color.b * 2));
         _go.Play();
         Destroy(_go, 3f);
     }

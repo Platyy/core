@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class PlayerController : MonoBehaviour {
 
     public GameObject m_Drone, m_Core, m_Shields, m_Bullet;
-    public Color m_PlayerColor;
+    [ColorUsage(true, true, 2.0f, 2.0f, .5f, 3.0f)] public Color m_PlayerColor;
     public Transform m_BulletSpawn;
     public float m_BulletSpeed = 10f;
     public bool m_CanShoot = true;
@@ -74,7 +74,8 @@ public class PlayerController : MonoBehaviour {
 
     public Material m_LineMaterial;
 
-    public AudioSource m_AS;
+    //public AudioSource m_AS;
+    public GameObject m_AS;
 
     private float m_Major, m_Minor;
 
@@ -206,10 +207,11 @@ public class PlayerController : MonoBehaviour {
         if (m_Device.GetControl(InputControlType.RightTrigger).IsPressed && timer > fireDelay && m_CanShoot)
         {
             ParticleSystem _s = (ParticleSystem)Instantiate(m_ShotParticle, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z)), m_Drone.transform.rotation);
-            _s.startColor = m_PlayerColor;
+            _s.GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(m_PlayerColor.r * 2, m_PlayerColor.g * 2, m_PlayerColor.b * 2));
             Destroy(_s.gameObject, 2f);
-            m_AS.pitch = Random.Range(0.5f, 1.3f);
-            m_AS.Play();
+            Instantiate(m_AS, transform.position, Quaternion.identity);
+            m_AS.GetComponent<AudioSource>().pitch = Random.Range(1f, 1.3f);
+            //m_AS.Play();
             timer = 0f;
             GameObject _bullet = (GameObject)Instantiate(m_Bullet, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z )), m_Drone.transform.rotation);
             _bullet.GetComponent<BulletScript>().m_ID = m_PlayerID;
