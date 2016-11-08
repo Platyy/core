@@ -210,6 +210,7 @@ public class PlayerController : MonoBehaviour {
             _s.GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(m_PlayerColor.r * 2, m_PlayerColor.g * 2, m_PlayerColor.b * 2));
             Destroy(_s.gameObject, 2f);
             Instantiate(m_AS, transform.position, Quaternion.identity);
+            Destroy(m_AS, 2f);
             m_AS.GetComponent<AudioSource>().pitch = Random.Range(1f, 1.3f);
             //m_AS.Play();
             timer = 0f;

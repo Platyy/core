@@ -11,7 +11,7 @@ public class SpawnParticle : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        transform.Rotate(0, 0, 2);
+        transform.Rotate(0, 0, 100 * Time.deltaTime);
 	
 	}
 }

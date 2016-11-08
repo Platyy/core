@@ -362,6 +362,7 @@ public class LMS : MonoBehaviour
                 m_QuitCanvas.SetActive(true);
                 m_Button = SelectedButton.OKBUTTON;
                 m_EventSystem.GetComponent<UnityEngine.EventSystems.EventSystem>().SetSelectedGameObject(GameObject.Find("OK"));
+                Time.timeScale = 0;
             }
 
             if (m_QuitCanvas.activeSelf && m_QuitCanvas != null)
@@ -375,6 +376,7 @@ public class LMS : MonoBehaviour
                             Destroy(m_ScoreCounter.gameObject);
                             Destroy(FindObjectOfType<MusicManager>().gameObject);
                             SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
+                            Time.timeScale = 1;
                         }
                         break;
 
@@ -382,6 +384,7 @@ public class LMS : MonoBehaviour
                         if (InputManager.ActiveDevice.Action1.WasPressed)
                         {
                             m_QuitCanvas.SetActive(false);
+                            Time.timeScale = 1;
                         }
                         break;
                 }
