@@ -71,6 +71,8 @@ public class LMS : MonoBehaviour
     public AudioSource m_RoundStart;
     public AudioSource m_DeathSound;
 
+    private int m_RoundsToWin;
+
     private bool gameIsOver = false;
     public Canvas scoreBoardCanvas;
     public Text[] endScores;
@@ -101,7 +103,7 @@ public class LMS : MonoBehaviour
 
         DontDestroyOnLoad(m_ScoreCounter);
         //DontDestroyOnLoad(m_ScoreObject);
-
+        m_RoundsToWin = m_MenuManager.m_SelectedRounds;
 
         m_ControllerManager = FindObjectOfType<PlayerControllerManager>();
         m_DevicesAssigned = m_MenuManager.m_PlayersReady;
@@ -253,6 +255,15 @@ public class LMS : MonoBehaviour
         m_RoundStarted = false;
         m_RoundsRemaining--;
         m_RemainingTime = m_RoundTime;
+
+        //for (int i = 0; i < m_PlayerScores.Length; i++)
+        //{
+        //    if(m_PlayerScores[i] == m_RoundsToWin)
+        //    {
+        //        
+        //    }
+        //}
+
         if (m_RoundsRemaining > 0)
         {
             //Debug.Log("Player 1: " + m_ScoreCounter.m_PlayerScores[0]);
