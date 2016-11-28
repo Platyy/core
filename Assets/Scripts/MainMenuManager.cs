@@ -33,6 +33,8 @@ public class MainMenuManager : MonoBehaviour {
 
     private bool m_MenuScene = true;
 
+    public Image controls;
+
     private enum SelectedButton
     {
         PLAYBUTTON,
@@ -120,6 +122,26 @@ public class MainMenuManager : MonoBehaviour {
 
             UpdateControllers();
         }
+
+        if (m_MenuCanvas.active == true)
+        {
+            if (InputManager.ActiveDevice.Action4 && controls.enabled == false)
+            {
+                controls.enabled = true;
+            } else if (InputManager.ActiveDevice.Action4 && controls.enabled == true)
+            {
+                controls.enabled = false;
+            }
+        }
+        /*
+        if (m_MutatorCanvas.active == true)
+        {
+            if (InputManager.ActiveDevice.Action2.WasPressed)
+            {
+                SceneManager.LoadScene (0);
+            }
+        }
+        */
     }
 
     public void ClickPlay()

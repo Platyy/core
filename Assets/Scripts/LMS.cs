@@ -71,6 +71,10 @@ public class LMS : MonoBehaviour
     public AudioSource m_RoundStart;
     public AudioSource m_DeathSound;
 
+    private bool gameIsOver = false;
+    public Canvas scoreBoardCanvas;
+    public Text[] endScores;
+
     private enum SelectedButton
     {
         OKBUTTON,
@@ -136,8 +140,24 @@ public class LMS : MonoBehaviour
             GetControllers();
         }
 
+        endScores[0].text = "" + m_ScoreCounter.m_PlayerScores[0];
+        endScores[1].text = "" + m_ScoreCounter.m_PlayerScores[1];
+        endScores[2].text = "" + m_ScoreCounter.m_PlayerScores[2];
+        endScores[3].text = "" + m_ScoreCounter.m_PlayerScores[3];
+
         ManageTime();
         ManageQuitCanvas();
+
+        if (gameIsOver == true)
+        {
+            scoreBoardCanvas.enabled = true;
+            if (InputManager.ActiveDevice.Action2)
+            {
+            }
+            if (InputManager.ActiveDevice.Action1)
+            {
+            }
+        }
     }
 
     public void GetControllers()
@@ -203,6 +223,10 @@ public class LMS : MonoBehaviour
         {
             m_ScoreCounter.m_PlayerScores[_player] += 1;
         }
+        if (m_ScoreCounter.m_PlayerScores [0] == m_MenuManager.m_SelectedRounds || m_ScoreCounter.m_PlayerScores[1] == m_MenuManager.m_SelectedRounds || m_ScoreCounter.m_PlayerScores[2] == m_MenuManager.m_SelectedRounds || m_ScoreCounter.m_PlayerScores[3] == m_MenuManager.m_SelectedRounds)
+        {
+            gameIsOver = true;
+        }
     }
 
     void ManageTime()
@@ -228,8 +252,18 @@ public class LMS : MonoBehaviour
         m_RemainingTime = m_RoundTime;
         if (m_RoundsRemaining > 0)
         {
+            //Debug.Log("Player 1: " + m_ScoreCounter.m_PlayerScores[0]);
+            //Debug.Log("Player 2: " + m_ScoreCounter.m_PlayerScores[1]);
+           // Debug.Log("Player 3: " + m_ScoreCounter.m_PlayerScores[2]);
+            //Debug.Log("Player 4: " + m_ScoreCounter.m_PlayerScores[3]);
+            //Debug.Log(m_RoundsRemaining);
             //ResetPlayers();
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+            if (gameIsOver == false)
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+            } else
+            {
+            }
             //EndGame();
             Debug.Log(m_RoundsRemaining);
         }
