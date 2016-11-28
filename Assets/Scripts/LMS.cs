@@ -153,9 +153,12 @@ public class LMS : MonoBehaviour
             scoreBoardCanvas.enabled = true;
             if (InputManager.ActiveDevice.Action2)
             {
-            }
-            if (InputManager.ActiveDevice.Action1)
-            {
+                SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
+                m_ScoreCounter.m_PlayerScores[0] = 0;
+                m_ScoreCounter.m_PlayerScores[1] = 0;
+                m_ScoreCounter.m_PlayerScores[2] = 0;
+                m_ScoreCounter.m_PlayerScores[3] = 0;
+                Destroy(m_MenuManager);
             }
         }
     }

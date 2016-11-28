@@ -123,12 +123,12 @@ public class MainMenuManager : MonoBehaviour {
             UpdateControllers();
         }
 
-        if (m_MenuCanvas.active == true)
+        if (m_Mutators == false)
         {
-            if (InputManager.ActiveDevice.Action4 && controls.enabled == false)
+            if (InputManager.ActiveDevice.Action4.WasPressed && controls.enabled == false)
             {
                 controls.enabled = true;
-            } else if (InputManager.ActiveDevice.Action4 && controls.enabled == true)
+            } else if (InputManager.ActiveDevice.Action4.WasPressed && controls.enabled == true)
             {
                 controls.enabled = false;
             }
