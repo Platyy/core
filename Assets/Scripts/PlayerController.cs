@@ -6,79 +6,58 @@ using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour {
 
-    public GameObject m_Drone, m_Core, m_Shields, m_Bullet;
-    [ColorUsage(true, true, 2.0f, 2.0f, .5f, 3.0f)] public Color m_PlayerColor;
-    public Transform m_BulletSpawn;
-    public float m_BulletSpeed = 10f;
-    public bool m_CanShoot = true;
     public int m_PlayerID = 0;
 
-    private bool m_Angled = false;
+    // Player Prefab Objects
+    public GameObject m_Drone, m_Core, m_Shields, m_Bullet;
 
+    public Transform m_BulletSpawn;
+
+    [ColorUsage(true, true, 2.0f, 2.0f, .5f, 3.0f)] public Color m_PlayerColor;
+
+    //Player Variables
+    public float m_BulletSpeed = 10f;
     public int m_ShootingAngles = 16;
-
     public float m_ShieldRotationSpeed = 5f;
+    public bool m_CanShoot = true;
+    private bool m_Angled = false;
+    public bool m_HasControls = false;
+    private float m_Major, m_Minor; // Shooting Angles
+
+    //Systems
+    public CameraScript m_CameraScript;
+    private LMS m_LMS; // Last Man Standing Gamemode
+    private PlayerControllerManager m_ControllerManager;
 
     public Renderer[] m_Renderer;
+    
+    // Input Variables
+    public float m_Acceleration; // Acceleration speed
+    public float m_MaxSpeed; // Max movement speed
+    public float m_AimSpeed = 0.04f;
 
-    // Public variables
-    // Movement
-    public float moveSpeed; // Acceleration speed
-    public float maxSpeed; // Max movement speed
-    public float tankRotSpeed = 0.02f; // Speed of rotation
-    public float droneSpeed = 0.04f;
     // Private variable
-    private float deadzone = 0.25f; // Analog stick deadzone
-    private Rigidbody rb; // Player's rigidbody component
-    private Vector3 movementInput; // Input for movement
-    private Vector3 rotationInput; // Input for rotation
-    private Vector3 rotation;
-    private Vector3 tankRotation; // Current rotation
-    private Vector3 turretRotation; // Current rotation
-    private Quaternion targetRotation;
+    private float m_Deadzone = 0.25f; // Analog stick deadzone
 
-    private float leftTrigger;
-    private float rightTrigger;
-    
-    private string movementXName;
-    private string movementYName;
-    private string rotationXName;
-    private string rotationYName;
-    private string rightTriggerName;
-    private string leftTriggerName;
-    private string rightBumperName;
-    private string leftBumperName;
+    private Rigidbody m_RB; // Player's rigidbody component
+    private Vector3 m_MovementInput; // Input for movement
+    private Vector3 m_RotationInput; // Input for rotation
+    private Vector3 m_TurretRotation; // Current rotation
 
-    private float timer;
-    public float fireDelay;
-    public float randomSpreadX;
-    public float projectileSpeed;
-    
-    public float exploForce = 100f;
-    public float exploRadius = 5f;
-    public float upwardsMod = 0.2f;
+    private float m_Timer;
+    public float m_FireDelay;
 
-    public CameraScript m_CameraScript;
-
-    private LMS m_LMS;
-
-    private PlayerControllerManager m_ControllerManager;
-    
-    
+    // Input
     public InputDevice m_Device;
     private InputManager m_InputManager;
     
-    public bool m_HasControls = false;
-
-    private LineRenderer m_LineRenderer, m_SecondRenderer;
-
+    // Line Renderer (Laser)
     public Material m_LineMaterial;
-
-    //public AudioSource m_AS;
-    public GameObject m_AS;
-
-    private float m_Major, m_Minor;
-
+    private LineRenderer m_LineRenderer;
+    
+    // Audio
+    public GameObject m_ShotSound;
+    
     public ParticleSystem m_ShotParticle;
 
     void Awake()
@@ -91,26 +70,14 @@ public class PlayerController : MonoBehaviour {
     {
         m_CameraScript = Camera.main.GetComponent<CameraScript>();
         m_LMS = FindObjectOfType<LMS>();
-        rb = GetComponent<Rigidbody>(); // Setting rb as player's rigidbody component
+        m_RB = GetComponent<Rigidbody>(); 
 
+        // Creating player aim laser.
         m_LineRenderer = gameObject.AddComponent<LineRenderer>();
         m_LineRenderer.material = m_LineMaterial;
-        
         m_LineRenderer.SetWidth(0.3f, 0.1f);
         m_LineRenderer.SetVertexCount(2);
         m_LineRenderer.useWorldSpace = true;
-        //m_SecondRenderer = m_LineRenderer;
-        //m_SecondRenderer.SetWidth(0.1f, 0.3f);
-
-        movementXName = "LSX" + m_PlayerID;
-        movementYName = "LSY" + m_PlayerID;
-        rotationXName = "RSX" + m_PlayerID;
-        rotationYName = "RSY" + m_PlayerID;
-        rightTriggerName = "RT" + m_PlayerID;
-        leftTriggerName = "LT" + m_PlayerID;
-        rightBumperName = "RB" + m_PlayerID;
-        leftBumperName = "LB" + m_PlayerID;
-
 
         if (m_Device != null)
         {
@@ -131,7 +98,7 @@ public class PlayerController : MonoBehaviour {
 
     void Update()
     {
-        timer += Time.deltaTime;
+        m_Timer += Time.deltaTime;
         HandleLaser();
         //HandleAngledShooting();
     }
@@ -169,32 +136,32 @@ public class PlayerController : MonoBehaviour {
 
     void Movement()
     {
-        movementInput = new Vector3(m_Device.GetControl(InputControlType.LeftStickX).RawValue, 0, m_Device.GetControl(InputControlType.LeftStickY).RawValue);
-        rotationInput = new Vector3(m_Device.GetControl(InputControlType.RightStickX), 0, m_Device.GetControl(InputControlType.RightStickY));
+        m_MovementInput = new Vector3(m_Device.GetControl(InputControlType.LeftStickX).RawValue, 0, m_Device.GetControl(InputControlType.LeftStickY).RawValue);
+        m_RotationInput = new Vector3(m_Device.GetControl(InputControlType.RightStickX), 0, m_Device.GetControl(InputControlType.RightStickY));
 
-        if (movementInput.magnitude > 1)
+        if (m_MovementInput.magnitude > 1)
         {
-            movementInput.Normalize();
+            m_MovementInput.Normalize();
         }
-        if (rotationInput.magnitude < deadzone)
+        if (m_RotationInput.magnitude < m_Deadzone)
         {
-            rotationInput = Vector3.zero;
+            m_RotationInput = Vector3.zero;
         }
         // Rigidbody Movement
-        if (movementInput.magnitude < deadzone)
+        if (m_MovementInput.magnitude < m_Deadzone)
         {
-            movementInput = Vector3.zero;
+            m_MovementInput = Vector3.zero;
         }
-        if (rb.velocity.magnitude < maxSpeed)
+        if (m_RB.velocity.magnitude < m_MaxSpeed)
         {
-            rb.AddForce(movementInput * moveSpeed);
+            m_RB.AddForce(m_MovementInput * m_Acceleration);
         }
 
+        // Rotate shields based on mutator speed.
         if (m_Device.GetControl(InputControlType.LeftBumper).IsPressed)
         {
             m_Shields.transform.Rotate(0, -m_ShieldRotationSpeed, 0);
         }
-
         if (m_Device.GetControl(InputControlType.RightBumper).IsPressed)
         {
             m_Shields.transform.Rotate(0, m_ShieldRotationSpeed, 0);
@@ -204,15 +171,18 @@ public class PlayerController : MonoBehaviour {
 
     void Shooting()
     {
-        if (m_Device.GetControl(InputControlType.RightTrigger).IsPressed && timer > fireDelay && m_CanShoot)
+        if (m_Device.GetControl(InputControlType.RightTrigger).IsPressed && m_Timer > m_FireDelay && m_CanShoot)
         {
             ParticleSystem _s = (ParticleSystem)Instantiate(m_ShotParticle, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z)), m_Drone.transform.rotation);
             _s.GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(m_PlayerColor.r * 2, m_PlayerColor.g * 2, m_PlayerColor.b * 2));
             Destroy(_s.gameObject, 2f);
-            Instantiate(m_AS, transform.position, Quaternion.identity);
-            m_AS.GetComponent<AudioSource>().pitch = Random.Range(1f, 1.3f);
-            //m_AS.Play();
-            timer = 0f;
+
+            // Random shot pitch.
+            Instantiate(m_ShotSound, transform.position, Quaternion.identity);
+            m_ShotSound.GetComponent<AudioSource>().pitch = Random.Range(1f, 1.3f);
+
+            m_Timer = 0f;
+
             GameObject _bullet = (GameObject)Instantiate(m_Bullet, (new Vector3(m_BulletSpawn.position.x, m_BulletSpawn.position.y, m_BulletSpawn.position.z )), m_Drone.transform.rotation);
             _bullet.GetComponent<BulletScript>().m_ID = m_PlayerID;
             _bullet.GetComponent<Rigidbody>().AddForce(m_BulletSpawn.forward * m_BulletSpeed, ForceMode.Impulse);
@@ -245,17 +215,17 @@ public class PlayerController : MonoBehaviour {
 
     void Rotation()
     {
-        if (rotationInput.magnitude > deadzone)
+        if (m_RotationInput.magnitude > m_Deadzone)
         {
             float _angle = m_Device.RightStick.Angle;
             for (int i = 0; i < m_ShootingAngles; i++)
             {
                 if(_angle > (m_Major * i) - m_Minor && _angle < (m_Major * i) + m_Minor)
                 {
-                    turretRotation.y = (m_Major * i);
+                    m_TurretRotation.y = (m_Major * i);
                 }
             }
-            m_Drone.transform.rotation = Quaternion.Lerp(Quaternion.Euler(turretRotation), m_Drone.transform.rotation, droneSpeed);
+            m_Drone.transform.rotation = Quaternion.Lerp(Quaternion.Euler(m_TurretRotation), m_Drone.transform.rotation, m_AimSpeed);
         }
     }
 
@@ -266,29 +236,10 @@ public class PlayerController : MonoBehaviour {
         m_LineRenderer.SetPosition(0, _ray.origin);
 
         if (Physics.Raycast(_ray, out _hit, 1000f))
-        {
-
             m_LineRenderer.SetPosition(1, _hit.point);
-           // m_SecondRenderer.SetPosition(0, _hit.point);
-
-           // if (_hit.transform.CompareTag("BounceWall"))
-           // {
-           //
-           //     Ray _secondRay = new Ray(_hit.point, Vector3.Reflect(_ray.direction, _hit.normal));
-           //
-           //     RaycastHit _secondHit;
-           //
-           //     if(Physics.Raycast(_secondRay, out _secondHit, 1000f))
-           //     {
-           //
-           //         m_SecondRenderer.SetPosition(1, _secondHit.point);
-           //     }
-           // }
-        }
         else
-        {
             m_LineRenderer.SetPosition(1, _ray.direction * 10f);
-        }
+
         Debug.DrawLine(_ray.origin, _hit.point, Color.red);
     }
 
@@ -296,5 +247,4 @@ public class PlayerController : MonoBehaviour {
     {
         Destroy(m_Shields);
     }
-
 }

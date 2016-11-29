@@ -255,23 +255,9 @@ public class LMS : MonoBehaviour
         m_RoundStarted = false;
         m_RoundsRemaining--;
         m_RemainingTime = m_RoundTime;
-
-        //for (int i = 0; i < m_PlayerScores.Length; i++)
-        //{
-        //    if(m_PlayerScores[i] == m_RoundsToWin)
-        //    {
-        //        
-        //    }
-        //}
-
+        
         if (m_RoundsRemaining > 0)
         {
-            //Debug.Log("Player 1: " + m_ScoreCounter.m_PlayerScores[0]);
-            //Debug.Log("Player 2: " + m_ScoreCounter.m_PlayerScores[1]);
-           // Debug.Log("Player 3: " + m_ScoreCounter.m_PlayerScores[2]);
-            //Debug.Log("Player 4: " + m_ScoreCounter.m_PlayerScores[3]);
-            //Debug.Log(m_RoundsRemaining);
-            //ResetPlayers();
             if (gameIsOver == false)
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
@@ -289,20 +275,6 @@ public class LMS : MonoBehaviour
 
     void EndGame()
     {
-        //m_Scores.SetActive(true);
-        //m_RoundsRemaining = 0;
-        //for (int i = 0; i < m_Scores.transform.childCount; i++)
-        //{
-        //    if(i <= m_DevicesAssigned)
-        //    {
-        //        m_Scores.transform.GetChild(i).GetComponent<Text>().text = "Player " + i.ToString() + ": "+ CalculateScore(i).ToString();
-        //    }
-        //    else
-        //    {
-        //        m_Scores.transform.GetChild(i).gameObject.SetActive(false);
-        //    }
-        //}
-
         if (Input.GetButtonDown("BackButton") && !m_RoundEnding)
         {
             SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
@@ -337,8 +309,8 @@ public class LMS : MonoBehaviour
             {
                 _go.transform.GetChild(0).transform.GetChild(j).GetComponent<ShieldManager>().m_HitsToTake = m_MenuManager.m_SelectedShieldHealth;
             }
-            _pc.fireDelay = m_MenuManager.m_SelectedFireRate * 0.1f;
-            _pc.moveSpeed = _pc.moveSpeed + (m_MenuManager.m_SelectedMoveSpeed * 50);
+            _pc.m_FireDelay = m_MenuManager.m_SelectedFireRate * 0.1f;
+            _pc.m_MaxSpeed = _pc.m_MaxSpeed + (m_MenuManager.m_SelectedMoveSpeed * 50);
             _pc.m_BulletSpeed = _pc.m_BulletSpeed * m_MenuManager.m_SelectedBulletSpeed;
             _pc.m_ShieldRotationSpeed = _pc.m_ShieldRotationSpeed * m_MenuManager.m_SelectedShieldRotateSpeed;
 
@@ -377,8 +349,8 @@ public class LMS : MonoBehaviour
             {
                 _go.transform.GetChild(0).transform.GetChild(j).GetComponent<ShieldManager>().m_HitsToTake = m_MenuManager.m_SelectedShieldHealth;
             }
-            _pc.fireDelay = m_MenuManager.m_SelectedFireRate * 0.1f;
-            _pc.moveSpeed = _pc.moveSpeed + (m_MenuManager.m_SelectedMoveSpeed * 50);
+            _pc.m_FireDelay = m_MenuManager.m_SelectedFireRate * 0.1f;
+            _pc.m_Acceleration = _pc.m_Acceleration + (m_MenuManager.m_SelectedMoveSpeed * 50);
             _pc.m_BulletSpeed = _pc.m_BulletSpeed * m_MenuManager.m_SelectedBulletSpeed;
             _pc.m_ShieldRotationSpeed = _pc.m_ShieldRotationSpeed * m_MenuManager.m_SelectedShieldRotateSpeed;
             _pc.m_PlayerID = i;
